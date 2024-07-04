@@ -42,13 +42,19 @@ export function processMessage(ws: WS, messageString: string): void {
   guardStringNotEmpty(messageObject.subscribeChannel, (subscribeChannel) => {
     trackSubscription(ws, subscribeChannel);
   });
-  guardStringNotEmpty(messageObject.unsubscribeChannel, (unsubscribeChannel) => {
-    removeSubscription(ws, unsubscribeChannel);
-  });
-  guardStringNotEmpty(messageObject.messageChannel == "string", (messageChannel) => {
-    if (!messageObject.messageBody) return;
-    sendMessage(messageChannel, messageObject.messageBody);
-  });
+  guardStringNotEmpty(
+    messageObject.unsubscribeChannel,
+    (unsubscribeChannel) => {
+      removeSubscription(ws, unsubscribeChannel);
+    }
+  );
+  guardStringNotEmpty(
+    messageObject.messageChannel == "string",
+    (messageChannel) => {
+      if (!messageObject.messageBody) return;
+      sendMessage(messageChannel, messageObject.messageBody);
+    }
+  );
 }
 
 // MESSAGING
@@ -71,7 +77,7 @@ export function sendMessage(channel: string, body: string): void {
 function confirmSubscription(ws: WS, channel: string): void {
   const messageObject = {
     channel: channel,
-    subscribed: subscriptions.getChannelList(ws)?.has(channel),
+    subscribed: subscriptions.getChannelList(ws) ? true : false,
   };
   const messageString = stringifyMessage(messageObject);
   console.log(messageString);
