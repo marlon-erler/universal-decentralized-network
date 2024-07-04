@@ -1,5 +1,63 @@
 (() => {
-  // node_modules/bloatless-react/index.ts
+  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/stringify.js
+  var byteToHex = [];
+  for (i = 0; i < 256; ++i) {
+    byteToHex.push((i + 256).toString(16).slice(1));
+  }
+  var i;
+  function unsafeStringify(arr, offset = 0) {
+    return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
+  }
+
+  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/rng.js
+  var getRandomValues;
+  var rnds8 = new Uint8Array(16);
+  function rng() {
+    if (!getRandomValues) {
+      getRandomValues = typeof crypto !== "undefined" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto);
+      if (!getRandomValues) {
+        throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
+      }
+    }
+    return getRandomValues(rnds8);
+  }
+
+  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/native.js
+  var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
+  var native_default = {
+    randomUUID
+  };
+
+  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/v4.js
+  function v4(options, buf, offset) {
+    if (native_default.randomUUID && !buf && !options) {
+      return native_default.randomUUID();
+    }
+    options = options || {};
+    var rnds = options.random || (options.rng || rng)();
+    rnds[6] = rnds[6] & 15 | 64;
+    rnds[8] = rnds[8] & 63 | 128;
+    if (buf) {
+      offset = offset || 0;
+      for (var i = 0; i < 16; ++i) {
+        buf[offset + i] = rnds[i];
+      }
+      return buf;
+    }
+    return unsafeStringify(rnds);
+  }
+  var v4_default = v4;
+
+  // ../../bloatless-react/index.ts
+  var UUID = class {
+    value;
+    constructor() {
+      this.value = v4_default();
+    }
+    toString() {
+      return this.value;
+    }
+  };
   var State = class {
     _value;
     _bindings = /* @__PURE__ */ new Set();
@@ -22,6 +80,41 @@
       fn(this._value);
     }
   };
+  var ListState = class extends State {
+    additionHandlers = /* @__PURE__ */ new Set();
+    removalHandlers = /* @__PURE__ */ new Map();
+    constructor() {
+      super(/* @__PURE__ */ new Set());
+    }
+    add(...items) {
+      items.forEach((item) => {
+        this.value.add(item);
+        this.additionHandlers.forEach((handler) => handler(item));
+      });
+    }
+    remove(...items) {
+      items.forEach((item) => {
+        this.value.delete(item);
+        const uuid = item.uuid;
+        if (!this.removalHandlers.has(uuid)) return;
+        this.removalHandlers.get(uuid)(item);
+        this.removalHandlers.delete(uuid);
+      });
+    }
+    handleAddition(handler) {
+      this.additionHandlers.add(handler);
+    }
+    handleRemoval(item, handler) {
+      this.removalHandlers.set(item.uuid, handler);
+    }
+  };
+  function createProxyState(statesToSubscibe, fn) {
+    const proxyState = new State(fn());
+    statesToSubscibe.forEach(
+      (state) => state.subscribe(() => proxyState.value = fn())
+    );
+    return proxyState;
+  }
   function createElement(tagName, attributes = {}, ...children) {
     const element = document.createElement(tagName);
     if (attributes != null)
@@ -30,7 +123,18 @@
         const [directiveKey, directiveValue] = attributename.split(":");
         switch (directiveKey) {
           case "on": {
-            element.addEventListener(directiveValue, value);
+            switch (directiveValue) {
+              case "enter": {
+                element.addEventListener("keydown", (e) => {
+                  if (e.key != "Enter") return;
+                  value();
+                });
+                break;
+              }
+              default: {
+                element.addEventListener(directiveValue, value);
+              }
+            }
             break;
           }
           case "subscribe": {
@@ -78,38 +182,176 @@
     return element;
   }
 
-  // src/index.tsx
+  // src/translations.tsx
+  var staticTextEnglish = {
+    channel: "Channel",
+    channel_placeholder: "my-channel",
+    message: "Message",
+    message_placeholder: "Hello, world!",
+    message_placeholder_generic: "Type a message...",
+    noMessagesReceived: "No messages received",
+    messages: "Messages",
+    messageLastReceived: "Last received message",
+    messagesReceived: "Received Messages",
+    send: "Send",
+    settings: "Settings",
+    subscribeToChannel: "Subscribe to channel",
+    subscribe: "Subscribe",
+    unsubscribe: "Unubscribe"
+  };
+  var translations = {
+    en: staticTextEnglish,
+    es: {
+      channel: "Canal",
+      channel_placeholder: "mi-canal",
+      message: "Mensaje",
+      message_placeholder: "Hola!",
+      message_placeholder_generic: "Escribe un mensaje...",
+      noMessagesReceived: "Sin mensajes",
+      messages: "Mensajes",
+      messageLastReceived: "\xDCltimo mensaje",
+      messagesReceived: "Todos los Mensajes",
+      send: "Enviar",
+      settings: "Configuraci\xF3n",
+      subscribeToChannel: "Suscribirse a un canal",
+      subscribe: "Suscribirse",
+      unsubscribe: "Cancelar"
+    }
+  };
+  function getText(key) {
+    if (translations[navigator.language] && translations[navigator.language][key]) {
+      return translations[navigator.language.substring(0, 2)][key];
+    }
+    return translations.en[key];
+  }
+
+  // src/model.tsx
+  var Message = class {
+    constructor(channel, body) {
+      this.channel = channel;
+      this.body = body;
+    }
+    uuid = new UUID();
+  };
   var ws = new WebSocket(`ws://${window.location.host}`);
   ws.addEventListener("message", (message) => {
-    receivedMessage.value = message.data;
+    const formatted = formatMessage(message);
+    const { channel, body } = parseMessage(message);
+    if (formatted) {
+      lastReceivedMessage.value = formatted;
+    }
+    if (channel && body) {
+      const messageObject = new Message(channel, body);
+      if (body) messages.add(messageObject);
+    }
   });
-  function send(object) {
+  var messages = new ListState();
+  var lastReceivedMessage = new State(
+    getText("noMessagesReceived")
+  );
+  var subscriptionChannel = new State("");
+  var newMessageChannel = new State("");
+  var newMessageBody = new State("");
+  var isMessageEmpty = createProxyState(
+    [newMessageChannel, newMessageBody],
+    () => newMessageChannel.value == "" || newMessageBody.value == ""
+  );
+  function formatMessage(message) {
+    const object = parseMessage(message);
+    const lines = Object.entries(object).map(
+      (entry) => `${entry[0]}: ${entry[1]}`
+    );
+    return lines.join("\n");
+  }
+  function parseMessage(message) {
+    return JSON.parse(message.data.toString());
+  }
+  function sendToWS(object) {
     const stringified = JSON.stringify(object);
     ws.send(stringified);
   }
-  var receivedMessage = new State("");
-  var subscriptionChannel = new State("");
-  var messageChannel = new State("");
-  var messageBody = new State("");
   function subscribe() {
-    send({ subscribeChannel: subscriptionChannel.value });
+    sendToWS({ subscribeChannel: subscriptionChannel.value });
   }
   function unsubscribe() {
-    send({ unsubscribeChannel: subscriptionChannel.value });
+    sendToWS({ unsubscribeChannel: subscriptionChannel.value });
   }
   function sendMessage() {
-    send({
-      messageChannel: messageChannel.value,
-      messageBody: messageBody.value
+    sendToWS({
+      messageChannel: newMessageChannel.value,
+      messageBody: newMessageBody.value
     });
+    newMessageBody.value = "";
   }
-  document.querySelector("main").append(
-    /* @__PURE__ */ createElement("article", null, /* @__PURE__ */ createElement("header", null, "UDN Test"), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, "Received message"), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": receivedMessage }))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, "Subscribe to channel"), /* @__PURE__ */ createElement(
+
+  // src/mainScreen.tsx
+  function MainScreen() {
+    return /* @__PURE__ */ createElement("article", { id: "main-screen" }, /* @__PURE__ */ createElement("header", null, getText("settings")), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("messageLastReceived")), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": lastReceivedMessage }))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("subscribeToChannel")), /* @__PURE__ */ createElement(
       "input",
       {
-        placeholder: "my-channel",
-        "bind:value": subscriptionChannel
+        placeholder: getText("channel_placeholder"),
+        "bind:value": subscriptionChannel,
+        "on:enter": subscribe
       }
-    ))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement("button", { class: "danger width-50", "on:click": unsubscribe }, "Unsubscribe"), /* @__PURE__ */ createElement("button", { class: "primary width-50", "on:click": subscribe }, "Subscribe", /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward"))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, "Channel"), /* @__PURE__ */ createElement("input", { placeholder: "my-channel", "bind:value": messageChannel }))), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, "Message"), /* @__PURE__ */ createElement("input", { placeholder: "Hello, world!", "bind:value": messageBody }))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement("button", { class: "primary width-50", "on:click": sendMessage }, "Send", /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward")))))
+    ))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement("button", { class: "danger width-50", "on:click": unsubscribe }, getText("unsubscribe")), /* @__PURE__ */ createElement("button", { class: "primary width-50", "on:click": subscribe }, getText("subscribe"), /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward"))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("channel")), /* @__PURE__ */ createElement(
+      "input",
+      {
+        placeholder: getText("channel_placeholder"),
+        "bind:value": newMessageChannel,
+        "on:enter": sendMessage
+      }
+    ))), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("message")), /* @__PURE__ */ createElement(
+      "input",
+      {
+        placeholder: getText("message_placeholder"),
+        "bind:value": newMessageBody,
+        "on:enter": sendMessage
+      }
+    ))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement(
+      "button",
+      {
+        class: "primary width-50",
+        "on:click": sendMessage,
+        "toggle:disabled": isMessageEmpty
+      },
+      getText("send"),
+      /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward")
+    ))));
+  }
+
+  // src/messageScreen.tsx
+  var convertMessageToElement = (message) => {
+    return /* @__PURE__ */ createElement("div", { class: "tile", style: "flex: 0" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", { class: "secondary" }, message.channel), /* @__PURE__ */ createElement("b", null, message.body)));
+  };
+  function MessageScreen() {
+    return /* @__PURE__ */ createElement("article", { id: "message-screen" }, /* @__PURE__ */ createElement("header", null, getText("messagesReceived")), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement(
+      "div",
+      {
+        class: "flex-column gap",
+        "subscribe:children": [messages, convertMessageToElement]
+      }
+    )), /* @__PURE__ */ createElement("footer", null, /* @__PURE__ */ createElement(
+      "input",
+      {
+        style: "max-width: unset",
+        placeholder: getText("message_placeholder_generic"),
+        "bind:value": newMessageBody,
+        "on:enter": sendMessage
+      }
+    ), /* @__PURE__ */ createElement(
+      "button",
+      {
+        class: "primary",
+        "on:click": sendMessage,
+        "toggle:disabled": isMessageEmpty
+      },
+      /* @__PURE__ */ createElement("span", { class: "icon" }, "send")
+    )));
+  }
+
+  // src/index.tsx
+  document.body.prepend(
+    /* @__PURE__ */ createElement("menu", null, /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#main-screen", active: true }, /* @__PURE__ */ createElement("span", { class: "icon" }, "settings"), getText("settings")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#message-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "chat"), getText("messages")))
   );
+  document.querySelector("main").append(MainScreen(), MessageScreen());
 })();
