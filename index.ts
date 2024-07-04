@@ -6,7 +6,6 @@ import { ServerWebSocket } from "bun";
 // CONFIG
 const staticDir = "static/dist";
 const defaultPage = "index.html";
-const errorPage = "404.html";
 
 // TYPES
 export type WS = ServerWebSocket<unknown>;
@@ -19,15 +18,11 @@ const server = Bun.serve({
 
     // respond
     const requestPath = new URL(request.url).pathname;
-    try {
-      switch (requestPath) {
-        case "/":
-          return createFileResponse(defaultPage);
-        default:
-          return createFileResponse(requestPath);
-      }
-    } catch {
-      return createFileResponse(errorPage);
+    switch (requestPath) {
+      case "/":
+        return createFileResponse(defaultPage);
+      default:
+        return createFileResponse(requestPath);
     }
   },
 
