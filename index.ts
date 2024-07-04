@@ -26,9 +26,6 @@ const server = Bun.serve({
   },
 
   websocket: {
-    open(ws) {
-
-    },
     message(ws, message) {
 
     },
