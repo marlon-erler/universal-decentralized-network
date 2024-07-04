@@ -57,7 +57,8 @@
   }
 
   // src/index.tsx
-  document.querySelector("main").append(
-    /* @__PURE__ */ createElement("h1", null, "Hello there!")
-  );
+  var ws = new WebSocket(`ws://${window.location.host}`);
+  ws.onopen = () => ws.send("Hello!");
+  ws.onmessage = (data) => console.log(data);
+  document.querySelector("main").append(/* @__PURE__ */ createElement("h1", null, "Hello there!"));
 })();

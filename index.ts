@@ -8,8 +8,11 @@ const errorPage = "404.html";
 // SERVER
 const server = Bun.serve({
   fetch(request, server) {
-    const requestPath = new URL(request.url).pathname;
+    // allow websockets
+    server.upgrade(request);
 
+    // respond
+    const requestPath = new URL(request.url).pathname;
     try {
       switch (requestPath) {
         case "/":
@@ -20,6 +23,16 @@ const server = Bun.serve({
     } catch {
       return createFileResponse(errorPage);
     }
+  },
+
+  websocket: {
+    open(ws) {
+
+    },
+    message(ws, message) {
+
+    },
+    close(ws, code, reason) {},
   },
 });
 
