@@ -34,7 +34,17 @@ export class SubscriptionMap {
   }
 
   delete(ws: WS, channel: string) {
-    this.getChannelList(ws)?.delete(channel);
-    this.getClientList(channel)?.delete(ws);
+    const channelList = this.getChannelList(ws);
+    const clientList = this.getClientList(channel);
+
+    channelList?.delete(channel);
+    if (channelList?.size == 0) {
+      this.channelsPerClient.delete(ws);
+    }
+
+    clientList?.delete(ws);
+    if (clientList?.size == 0) {
+      this.clientsPerChannel.delete(channel);
+    }
   }
 }

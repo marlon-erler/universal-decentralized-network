@@ -31,7 +31,7 @@ const server = Bun.serve({
       processMessage(ws, message.toString());
     },
     close(ws, code, reason) {
-        forgetConnection(ws);
+      forgetConnection(ws);
     },
   },
 });
