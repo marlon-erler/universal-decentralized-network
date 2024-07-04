@@ -1,0 +1,9 @@
+{
+    "dependencies": {
+        "bloatless-react": "^1.1.2",
+        "esbuild": "latest"
+    },
+    "scripts": {
+        "build": "esbuild src/index.tsx --bundle --outdir=dist"
+    }
+}
