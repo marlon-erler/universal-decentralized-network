@@ -1,9 +1,15 @@
+import { forgetConnection, processMessage } from "./websocket-handler";
+
 import Path from "path";
+import { ServerWebSocket } from "bun";
 
 // CONFIG
 const staticDir = "static/dist";
 const defaultPage = "index.html";
 const errorPage = "404.html";
+
+// TYPES
+export type WS = ServerWebSocket<unknown>;
 
 // SERVER
 const server = Bun.serve({
@@ -27,9 +33,11 @@ const server = Bun.serve({
 
   websocket: {
     message(ws, message) {
-
+      processMessage(ws, message.toString());
     },
-    close(ws, code, reason) {},
+    close(ws, code, reason) {
+        forgetConnection(ws);
+    },
   },
 });
 

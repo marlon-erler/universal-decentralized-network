@@ -1,38 +1,40 @@
-export class TwoWayMap<A, B> {
-  private mapAtoB = new Map<A, Set<B>>();
-  private mapBtoA = new Map<B, Set<A>>();
+import { WS } from "./index";
+
+export class SubscriptionMap {
+  private channelsPerClient = new Map<WS, Set<string>>();
+  private clientsPerChannel = new Map<string, Set<WS>>();
 
   // prepare
-  private prepareA(a: A) {
-    if (this.mapAtoB.has(a)) return;
-    this.mapAtoB.set(a, new Set());
+  private prepareChannelSet(ws: WS) {
+    if (this.channelsPerClient.has(ws)) return;
+    this.channelsPerClient.set(ws, new Set());
   }
 
-  private prepareB(b: B) {
-    if (this.mapBtoA.has(b)) return;
-    this.mapBtoA.set(b, new Set());
+  private prepareClientSet(channel: string) {
+    if (this.clientsPerChannel.has(channel)) return;
+    this.clientsPerChannel.set(channel, new Set());
   }
 
   // utility
-  private getListOnA(a: A) {
-    return this.mapAtoB.get(a);
+  getChannelList(ws: WS) {
+    return this.channelsPerClient.get(ws);
   }
 
-  private getListOnB(b: B) {
-    return this.mapBtoA.get(b);
+  getClientList(channel: string) {
+    return this.clientsPerChannel.get(channel);
   }
 
-  // public
-  set(a: A, b: B) {
-    this.prepareA(a);
-    this.prepareB(b);
+  // modifications
+  set(ws: WS, channel: string) {
+    this.prepareChannelSet(ws);
+    this.prepareClientSet(channel);
 
-    this.getListOnA(a)?.add(b);
-    this.getListOnB(b)?.add(a);
+    this.getChannelList(ws)?.add(channel);
+    this.getClientList(channel)?.add(ws);
   }
 
-  delete(a: A, b: B) {
-    this.getListOnA(a)?.delete(b);
-    this.getListOnB(b)?.delete(a);
+  delete(ws: WS, channel: string) {
+    this.getChannelList(ws)?.delete(channel);
+    this.getClientList(channel)?.delete(ws);
   }
 }
