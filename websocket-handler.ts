@@ -1,7 +1,8 @@
 // TYPES
 
-import { SubscriptionMap } from "./auxilary";
+import { SubscriptionMap } from "./subscriptionMap";
 import { WS } from "./index";
+import { guardStringNotEmpty } from "./utility";
 
 // requests
 export interface IncomingMessage {
@@ -38,16 +39,16 @@ export function forgetConnection(ws: WS): void {
 export function processMessage(ws: WS, messageString: string): void {
   const messageObject: IncomingMessage = parseMessage(messageString);
 
-  if (typeof messageObject.subscribeChannel == "string") {
-    trackSubscription(ws, messageObject.subscribeChannel);
-  } else if (typeof messageObject.unsubscribeChannel == "string") {
-    removeSubscription(ws, messageObject.unsubscribeChannel);
-  } else if (
-    typeof messageObject.messageChannel == "string" &&
-    typeof messageObject.messageBody == "string"
-  ) {
-    sendMessage(messageObject.messageChannel, messageObject.messageBody);
-  }
+  guardStringNotEmpty(messageObject.subscribeChannel, (subscribeChannel) => {
+    trackSubscription(ws, subscribeChannel);
+  });
+  guardStringNotEmpty(messageObject.unsubscribeChannel, (unsubscribeChannel) => {
+    removeSubscription(ws, unsubscribeChannel);
+  });
+  guardStringNotEmpty(messageObject.messageChannel == "string", (messageChannel) => {
+    if (!messageObject.messageBody) return;
+    sendMessage(messageChannel, messageObject.messageBody);
+  });
 }
 
 // MESSAGING
@@ -73,5 +74,6 @@ function confirmSubscription(ws: WS, channel: string): void {
     subscribed: subscriptions.getChannelList(ws)?.has(channel),
   };
   const messageString = stringifyMessage(messageObject);
+  console.log(messageString);
   ws.send(messageString);
 }
