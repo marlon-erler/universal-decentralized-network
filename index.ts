@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 import { ServerWebSocket, write } from "bun";
 import {
   addConnection,
