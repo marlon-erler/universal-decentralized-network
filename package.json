@@ -1,9 +1,27 @@
 {
+  "name": "udn",
+  "version": "1.0.0-beta1",
+  "description": "A websocket-based infrastructure for decentralized networks ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bun index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marlon-erler/universal-decentralized-network.git"
+  },
+  "author": "marlon-erler",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/marlon-erler/universal-decentralized-network/issues"
+  },
+  "homepage": "https://github.com/marlon-erler/universal-decentralized-network#readme",
   "dependencies": {
     "@types/bun": "^1.1.6",
     "colors": "^1.4.0",
     "express": "^4.19.2",
     "ip": "^2.0.1",
     "ws": "^8.18.0"
-  }
+  },
+  "devDependencies": {}
 }
