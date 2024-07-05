@@ -70,6 +70,7 @@ async function main() {
 
   // CLI
   writeSuccess(`###\nstarted up ${new Date().toLocaleString()}`);
+  console.log("relevant output available in the 'logs' file");
 
   function updateCLI() {
     console.clear();
