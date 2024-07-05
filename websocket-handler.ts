@@ -46,7 +46,7 @@ export function audit(): [string, number][] {
   return [
     ["channels", subscriptions.clientsPerChannel.size],
     ["users connected", connectionCount],
-    ["users susbcribing", subscriptions.channelsPerClient.size],
+    ["users subscribing", subscriptions.channelsPerClient.size],
   ];
 }
 

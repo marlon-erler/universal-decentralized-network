@@ -7,10 +7,11 @@ import {
   processMessage,
   subscriptions,
 } from "./websocket-handler";
+import { writeInfo, writeStat } from "./utility";
 
 import Colors from "colors";
+import IP from "ip";
 import Path from "path";
-import { writeStat } from "./utility";
 
 // CONFIG
 const staticDir = "static/dist";
@@ -54,14 +55,20 @@ function createFileResponse(requestPath: string): Response {
 }
 
 // CLI
-function output() {
+function updateCLI() {
   console.clear();
-  console.log("Server up on", Colors.bold.green(server.url.toString()));
+  console.log(Colors.bold.bgWhite("UNIVERSAL DECENTRALIZED NETWORK"));
   console.log();
+
   console.log(new Date().toLocaleString());
   console.log();
+
+  writeInfo("server url", Colors.bold.green(server.url.toString()));
+  writeInfo("server ip address", Colors.bold.green(IP.address()));
+  console.log();
+
   audit().forEach((entry) => writeStat(...entry));
 }
 
-output();
-setInterval(output, 5000);
+updateCLI();
+setInterval(updateCLI, 5000);
