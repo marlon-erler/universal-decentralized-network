@@ -109,7 +109,7 @@ export function subscribeChannel(server: WS, channel: string): void {
 }
 
 // AUDIT
-export function audit(): [string, number][] {
+export function getStats(): [string, number][] {
   return [
     ["channels", subscriptions.clientsPerChannel.size],
     ["clients connected", connectedClientCount],

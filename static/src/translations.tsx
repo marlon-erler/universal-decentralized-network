@@ -2,6 +2,7 @@
 export const staticTextEnglish = {
   channel: "Channel",
   channel_placeholder: "my-channel",
+  info: "Info",
   message: "Message",
   messages: "Messages",
   message_placeholder: "Hello, world!",
@@ -10,6 +11,7 @@ export const staticTextEnglish = {
   messageLastReceived: "Last received message",
   messagesReceived: "Received Messages",
   send: "Send",
+  serverInfo: "Server Info",
   settings: "Settings",
   subscribeToChannel: "Subscribe to channel",
   subscribe: "Subscribe",
@@ -21,6 +23,7 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   es: {
     channel: "Canal",
     channel_placeholder: "mi-canal",
+    info: "Info",
     message: "Mensaje",
     messages: "Mensajes",
     message_placeholder: "Hola!",
@@ -29,6 +32,7 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
     messageLastReceived: "Ültimo mensaje",
     messagesReceived: "Todos los Mensajes",
     send: "Enviar",
+    serverInfo: "Información",
     settings: "Configuración",
     subscribeToChannel: "Suscribirse a un canal",
     subscribe: "Suscribirse",
@@ -37,6 +41,7 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   de: {
     channel: "Kanal",
     channel_placeholder: "mein-kanal",
+    info: "Daten",
     message: "Nachricht",
     messages: "Nachrichten",
     message_placeholder: "Hallo!",
@@ -45,6 +50,7 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
     messageLastReceived: "Letzte Nachrichte",
     messagesReceived: "Empfangene Nachrichten",
     send: "Senden",
+    serverInfo: "Serverdaten",
     settings: "Einstellungen",
     subscribeToChannel: "Kanal Abonnieren",
     subscribe: "Abonnieren",

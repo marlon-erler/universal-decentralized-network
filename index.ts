@@ -1,11 +1,11 @@
 import { ServerWebSocket, write } from "bun";
 import {
   addConnection,
-  audit,
   connectServer,
   connectServers,
   connectedClientCount,
   forgetConnection,
+  getStats,
   processMessage,
   subscribeChannel,
   subscriptions,
@@ -42,6 +42,8 @@ async function main() {
       switch (requestPath) {
         case "/":
           return createFileResponse(defaultPage);
+        case "/stats":
+          return new Response(JSON.stringify(getStats()));
         default:
           return createFileResponse(requestPath);
       }
@@ -83,7 +85,7 @@ async function main() {
     writeInfo("server ip address", Colors.bold.green(IP.address()));
     console.log();
 
-    audit().forEach((entry) => writeStat(...entry));
+    getStats().forEach((entry) => writeStat(...entry));
   }
 
   setInterval(updateCLI, 5000);

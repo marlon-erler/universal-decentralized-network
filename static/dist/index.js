@@ -186,6 +186,7 @@
   var staticTextEnglish = {
     channel: "Channel",
     channel_placeholder: "my-channel",
+    info: "Info",
     message: "Message",
     messages: "Messages",
     message_placeholder: "Hello, world!",
@@ -194,6 +195,7 @@
     messageLastReceived: "Last received message",
     messagesReceived: "Received Messages",
     send: "Send",
+    serverInfo: "Server Info",
     settings: "Settings",
     subscribeToChannel: "Subscribe to channel",
     subscribe: "Subscribe",
@@ -204,6 +206,7 @@
     es: {
       channel: "Canal",
       channel_placeholder: "mi-canal",
+      info: "Info",
       message: "Mensaje",
       messages: "Mensajes",
       message_placeholder: "Hola!",
@@ -212,6 +215,7 @@
       messageLastReceived: "\xDCltimo mensaje",
       messagesReceived: "Todos los Mensajes",
       send: "Enviar",
+      serverInfo: "Informaci\xF3n",
       settings: "Configuraci\xF3n",
       subscribeToChannel: "Suscribirse a un canal",
       subscribe: "Suscribirse",
@@ -220,6 +224,7 @@
     de: {
       channel: "Kanal",
       channel_placeholder: "mein-kanal",
+      info: "Daten",
       message: "Nachricht",
       messages: "Nachrichten",
       message_placeholder: "Hallo!",
@@ -228,6 +233,7 @@
       messageLastReceived: "Letzte Nachrichte",
       messagesReceived: "Empfangene Nachrichten",
       send: "Senden",
+      serverInfo: "Serverdaten",
       settings: "Einstellungen",
       subscribeToChannel: "Kanal Abonnieren",
       subscribe: "Abonnieren",
@@ -250,6 +256,7 @@
     uuid = new UUID();
   };
   var ws = new WebSocket(`ws://${window.location.host}`);
+  ws.addEventListener("open", () => updateStats());
   ws.addEventListener("message", (message) => {
     const formatted = formatMessage(message);
     const { messageChannel, messageBody } = parseMessage(message);
@@ -265,6 +272,19 @@
   var lastReceivedMessage = new State(
     getText("noMessagesReceived")
   );
+  var statHTMLString = new State("");
+  async function updateStats() {
+    const response = await fetch(
+      `${window.location.protocol}//${window.location.host}/stats`
+    );
+    const data = await response.json();
+    let html = "";
+    data.forEach((item) => {
+      const tile = /* @__PURE__ */ createElement("div", { class: "tile" }, /* @__PURE__ */ createElement("span", { class: "secondary flex width-100" }, item[0].toString()), /* @__PURE__ */ createElement("b", null, item[1].toString()));
+      html += tile.outerHTML;
+    });
+    statHTMLString.value = html;
+  }
   var subscriptionChannel = new State("");
   var newMessageChannel = new State("");
   var newMessageBody = new State("");
@@ -293,11 +313,17 @@
     sendToWS({ unsubscribeChannel: subscriptionChannel.value });
   }
   function sendMessage() {
+    if (isMessageEmpty.value == true) return;
     sendToWS({
       messageChannel: newMessageChannel.value,
       messageBody: newMessageBody.value
     });
     newMessageBody.value = "";
+  }
+
+  // src/infoScreen.tsx
+  function InfoScreen() {
+    return /* @__PURE__ */ createElement("article", { id: "info-screen" }, /* @__PURE__ */ createElement("header", null, getText("serverInfo"), /* @__PURE__ */ createElement("span", null, /* @__PURE__ */ createElement("button", { "on:click": updateStats }, /* @__PURE__ */ createElement("span", { class: "icon" }, "refresh")))), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "flex-column gap", "subscribe:innerHTML": statHTMLString })));
   }
 
   // src/mainScreen.tsx
@@ -367,7 +393,7 @@
 
   // src/index.tsx
   document.body.prepend(
-    /* @__PURE__ */ createElement("menu", null, /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#main-screen", active: true }, /* @__PURE__ */ createElement("span", { class: "icon" }, "settings"), getText("settings")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#message-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "chat"), getText("messages")))
+    /* @__PURE__ */ createElement("menu", null, /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#info-screen", active: true }, /* @__PURE__ */ createElement("span", { class: "icon" }, "info"), getText("info")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#main-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "settings"), getText("settings")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#message-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "chat"), getText("messages")))
   );
-  document.querySelector("main").append(MainScreen(), MessageScreen());
+  document.querySelector("main").append(InfoScreen(), MainScreen(), MessageScreen());
 })();
