@@ -16,7 +16,7 @@ import { ServerWebSocket } from "bun";
 import { getConfig } from "./config-handler";
 
 // CONFIG
-const staticDir = "static/dist";
+const staticDir = Path.join(Path.dirname(import.meta.path), "static/dist");
 const defaultPage = "index.html";
 
 // TYPES
