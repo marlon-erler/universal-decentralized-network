@@ -1,5 +1,5 @@
 (() => {
-  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/stringify.js
+  // node_modules/uuid/dist/esm-browser/stringify.js
   var byteToHex = [];
   for (i = 0; i < 256; ++i) {
     byteToHex.push((i + 256).toString(16).slice(1));
@@ -9,7 +9,7 @@
     return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
   }
 
-  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/rng.js
+  // node_modules/uuid/dist/esm-browser/rng.js
   var getRandomValues;
   var rnds8 = new Uint8Array(16);
   function rng() {
@@ -22,13 +22,13 @@
     return getRandomValues(rnds8);
   }
 
-  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/native.js
+  // node_modules/uuid/dist/esm-browser/native.js
   var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
   var native_default = {
     randomUUID
   };
 
-  // ../../bloatless-react/node_modules/uuid/dist/esm-browser/v4.js
+  // node_modules/uuid/dist/esm-browser/v4.js
   function v4(options, buf, offset) {
     if (native_default.randomUUID && !buf && !options) {
       return native_default.randomUUID();
@@ -48,7 +48,7 @@
   }
   var v4_default = v4;
 
-  // ../../bloatless-react/index.ts
+  // node_modules/bloatless-react/index.ts
   var UUID = class {
     value;
     constructor() {
@@ -187,10 +187,10 @@
     channel: "Channel",
     channel_placeholder: "my-channel",
     message: "Message",
+    messages: "Messages",
     message_placeholder: "Hello, world!",
     message_placeholder_generic: "Type a message...",
     noMessagesReceived: "No messages received",
-    messages: "Messages",
     messageLastReceived: "Last received message",
     messagesReceived: "Received Messages",
     send: "Send",
@@ -205,10 +205,10 @@
       channel: "Canal",
       channel_placeholder: "mi-canal",
       message: "Mensaje",
-      message_placeholder: "Hola!",
-      message_placeholder_generic: "Escribe un mensaje...",
-      noMessagesReceived: "Sin mensajes",
       messages: "Mensajes",
+      message_placeholder: "Hola!",
+      message_placeholder_generic: "Nuevo mensaje",
+      noMessagesReceived: "Sin mensajes",
       messageLastReceived: "\xDCltimo mensaje",
       messagesReceived: "Todos los Mensajes",
       send: "Enviar",
@@ -216,6 +216,22 @@
       subscribeToChannel: "Suscribirse a un canal",
       subscribe: "Suscribirse",
       unsubscribe: "Cancelar"
+    },
+    de: {
+      channel: "Kanal",
+      channel_placeholder: "mein-kanal",
+      message: "Nachricht",
+      messages: "Nachrichten",
+      message_placeholder: "Hallo!",
+      message_placeholder_generic: "Neue Nachricht",
+      noMessagesReceived: "Keine Nachrichten",
+      messageLastReceived: "Letzte Nachrichte",
+      messagesReceived: "Empfangene Nachrichten",
+      send: "Senden",
+      settings: "Einstellungen",
+      subscribeToChannel: "Kanal Abonnieren",
+      subscribe: "Abonnieren",
+      unsubscribe: "Verlassen"
     }
   };
   function getText(key) {
@@ -236,13 +252,13 @@
   var ws = new WebSocket(`ws://${window.location.host}`);
   ws.addEventListener("message", (message) => {
     const formatted = formatMessage(message);
-    const { channel, body } = parseMessage(message);
+    const { messageChannel, messageBody } = parseMessage(message);
     if (formatted) {
       lastReceivedMessage.value = formatted;
     }
-    if (channel && body) {
-      const messageObject = new Message(channel, body);
-      if (body) messages.add(messageObject);
+    if (messageChannel && messageBody) {
+      const messageObject = new Message(messageChannel, messageBody);
+      if (messageBody) messages.add(messageObject);
     }
   });
   var messages = new ListState();

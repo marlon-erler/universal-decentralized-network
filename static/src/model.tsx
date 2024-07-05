@@ -13,14 +13,14 @@ const ws = new WebSocket(`ws://${window.location.host}`);
 
 ws.addEventListener("message", (message) => {
   const formatted = formatMessage(message);
-  const { channel, body } = parseMessage(message);
+  const { messageChannel, messageBody } = parseMessage(message);
 
   if (formatted) {
     lastReceivedMessage.value = formatted;
   }
-  if (channel && body) {
-    const messageObject = new Message(channel, body);
-    if (body) messages.add(messageObject);
+  if (messageChannel && messageBody) {
+    const messageObject = new Message(messageChannel, messageBody);
+    if (messageBody) messages.add(messageObject);
   }
 });
 
