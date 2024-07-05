@@ -64,8 +64,11 @@ export function processMessage(ws: WS, messageString: string): void {
     }
   );
   guardStringNotEmpty(messageObject.messageChannel, (messageChannel) => {
-    if (!messageObject.messageBody) return;
-    sendMessage(messageChannel, messageObject.messageBody);
+    const body = messageObject.messageBody;
+    if (body == undefined) return;
+
+    const channels = messageChannel.split("/");
+    channels.forEach((channel) => sendMessage(channel, body));
   });
 }
 
