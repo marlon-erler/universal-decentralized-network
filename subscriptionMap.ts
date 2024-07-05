@@ -1,8 +1,8 @@
 import { WS } from "./index";
 
 export class SubscriptionMap {
-  private channelsPerClient = new Map<WS, Set<string>>();
-  private clientsPerChannel = new Map<string, Set<WS>>();
+  channelsPerClient = new Map<WS, Set<string>>();
+  clientsPerChannel = new Map<string, Set<WS>>();
 
   // prepare
   private prepareChannelSet(ws: WS) {

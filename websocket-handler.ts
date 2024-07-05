@@ -16,7 +16,12 @@ export interface IncomingMessage {
 }
 
 // TRACKING
-const subscriptions = new SubscriptionMap();
+export const subscriptions = new SubscriptionMap();
+export let connectionCount = 0;
+
+export function addConnection() {
+  connectionCount++;
+}
 
 export function trackSubscription(ws: WS, channel: string): void {
   subscriptions.set(ws, channel);
@@ -29,10 +34,20 @@ export function removeSubscription(ws: WS, channel: string): void {
 }
 
 export function forgetConnection(ws: WS): void {
+  connectionCount--;
   const channels = subscriptions.getChannelList(ws);
   channels?.forEach((channel) => {
     subscriptions.delete(ws, channel);
   });
+}
+
+// AUDIT
+export function audit(): [string, number][] {
+  return [
+    ["channels", subscriptions.clientsPerChannel.size],
+    ["users connected", connectionCount],
+    ["users susbcribing", subscriptions.channelsPerClient.size],
+  ];
 }
 
 // PROCESS MESSAGE
@@ -48,13 +63,10 @@ export function processMessage(ws: WS, messageString: string): void {
       removeSubscription(ws, unsubscribeChannel);
     }
   );
-  guardStringNotEmpty(
-    messageObject.messageChannel == "string",
-    (messageChannel) => {
-      if (!messageObject.messageBody) return;
-      sendMessage(messageChannel, messageObject.messageBody);
-    }
-  );
+  guardStringNotEmpty(messageObject.messageChannel, (messageChannel) => {
+    if (!messageObject.messageBody) return;
+    sendMessage(messageChannel, messageObject.messageBody);
+  });
 }
 
 // MESSAGING
@@ -80,6 +92,5 @@ function confirmSubscription(ws: WS, channel: string): void {
     subscribed: subscriptions.getChannelList(ws) ? true : false,
   };
   const messageString = stringifyMessage(messageObject);
-  console.log(messageString);
   ws.send(messageString);
 }

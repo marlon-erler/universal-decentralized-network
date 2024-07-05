@@ -1,7 +1,16 @@
-import { forgetConnection, processMessage } from "./websocket-handler";
+import { ServerWebSocket, write } from "bun";
+import {
+  addConnection,
+  audit,
+  connectionCount,
+  forgetConnection,
+  processMessage,
+  subscriptions,
+} from "./websocket-handler";
 
+import Colors from "colors";
 import Path from "path";
-import { ServerWebSocket } from "bun";
+import { writeStat } from "./utility";
 
 // CONFIG
 const staticDir = "static/dist";
@@ -27,10 +36,13 @@ const server = Bun.serve({
   },
 
   websocket: {
+    open() {
+      addConnection();
+    },
     message(ws, message) {
       processMessage(ws, message.toString());
     },
-    close(ws, code, reason) {
+    close(ws) {
       forgetConnection(ws);
     },
   },
@@ -41,4 +53,15 @@ function createFileResponse(requestPath: string): Response {
   return new Response(Bun.file(fullPath));
 }
 
-console.log(`Server up on port ${server.port}.`);
+// CLI
+function output() {
+  console.clear();
+  console.log("Server up on", Colors.bold.green(server.url.toString()));
+  console.log();
+  console.log(new Date().toLocaleString());
+  console.log();
+  audit().forEach((entry) => writeStat(...entry));
+}
+
+output();
+setInterval(output, 5000);
