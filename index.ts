@@ -1,22 +1,18 @@
 #!/usr/bin/env bun
 
-import { ServerWebSocket, write } from "bun";
 import {
   addConnection,
-  connectServer,
   connectServers,
-  connectedClientCount,
   forgetConnection,
   getStats,
   processMessage,
-  subscribeChannel,
-  subscriptions,
 } from "./websocket-handler";
 import { writeInfo, writeStat, writeSuccess } from "./utility";
 
 import Colors from "colors";
 import IP from "ip";
 import Path from "path";
+import { ServerWebSocket } from "bun";
 import { getConfig } from "./config-handler";
 
 // CONFIG

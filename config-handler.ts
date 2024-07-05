@@ -1,5 +1,3 @@
-import Fs from "fs/promises";
-
 // CONFIG
 const configPath = "config.json";
 
@@ -12,12 +10,12 @@ export const defaultConfig = {
 // METHODS
 export async function createConfig() {
   const configString = JSON.stringify(defaultConfig, null, 4);
-  await Fs.writeFile(configPath, configString);
+  await Bun.write(configPath, configString);
 }
 
 export async function getConfig(): Promise<typeof defaultConfig> {
   try {
-    const configString = (await Fs.readFile(configPath)).toString();
+    const configString = await Bun.file(configPath).text();
     const configObject = JSON.parse(configString);
 
     Object.keys(defaultConfig).forEach((key) => {
