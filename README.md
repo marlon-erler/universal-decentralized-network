@@ -66,7 +66,19 @@ The port and channels are self-explanatory. For servers, you'll need to provide 
 
 # Developing
 
+## Recommended way
+
 For TypeScript-based apps, you can use the [udn-frontend](https://github.com/marlon-erler/udn-frontend) package to manage the connection. If you want to/need to implement this yourself, follow the instructions below.
+
+The web interface of the server itself is based on my other two projects, [carbon-mini](https://github.com/marlon-erler/carbon-mini) and [bloatless-react](https://github.com/marlon-erler/bloatless-react).
+Both of these projects are very minimal, bloat-free, and quick to get started with. I'd suggest you to build your app based on the same foundation for a consistent user experience.
+
+1. Download [carbon-mini](https://github.com/marlon-erler/carbon-mini) from the releases page
+2. Install [bloatless-react](https://github.com/marlon-erler/bloatless-react)
+3. Install [udn-frontend](https://github.com/marlon-erler/udn-frontend)
+4. Start developing
+
+## Manual way
 
 The UDN is based on WebSockets, so you'd start by opening a WebSocket connection to a server. The only two types of messages you need to send are subscriptions and actual messages.
 
