@@ -66,7 +66,7 @@ The port and channels are self-explanatory. For servers, you'll need to provide 
 
 # Developing
 
-For TypeScript-based package, you can use the [udn-frontend](https://github.com/marlon-erler/udn-frontend) package to manage the connection. If you want to/need to implement this yourself, follow the instructions below.
+For TypeScript-based apps, you can use the [udn-frontend](https://github.com/marlon-erler/udn-frontend) package to manage the connection. If you want to/need to implement this yourself, follow the instructions below.
 
 The UDN is based on WebSockets, so you'd start by opening a WebSocket connection to a server. The only two types of messages you need to send are subscriptions and actual messages.
 
