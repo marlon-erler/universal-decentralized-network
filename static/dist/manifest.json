@@ -1,5 +1,10 @@
 {
-  "name": "My App",
-  "theme_color": "#000",
-  "display": "standalone"
+  "name": "UDN Server",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "any"
+    }
+  ]
 }
