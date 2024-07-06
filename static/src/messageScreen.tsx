@@ -5,7 +5,6 @@ import {
   isMessageEmpty,
   messages,
   newMessageBody,
-  parseMessage,
   sendMessage,
 } from "./model";
 

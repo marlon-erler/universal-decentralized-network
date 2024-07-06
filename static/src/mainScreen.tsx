@@ -1,7 +1,6 @@
 import * as React from "bloatless-react";
 
 import {
-  formatMessage,
   isMessageEmpty,
   lastReceivedMessage,
   newMessageBody,

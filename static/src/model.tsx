@@ -1,5 +1,6 @@
 import * as React from "bloatless-react";
 
+import UDNFrontend from "udn-frontend";
 import { getText } from "./translations";
 
 export class Message implements React.Identifiable {
@@ -8,23 +9,25 @@ export class Message implements React.Identifiable {
   constructor(public channel: string, public body: string) {}
 }
 
-// WS
-const ws = new WebSocket(`ws://${window.location.host}`);
+// UDN Frontend
+const UDN = new UDNFrontend();
 
-ws.addEventListener("open", () => updateStats());
+UDN.onconnect = () => {
+  console.log("connected!")
+  updateStats();
+};
 
-ws.addEventListener("message", (message) => {
-  const formatted = formatMessage(message);
-  const { messageChannel, messageBody } = parseMessage(message);
+UDN.onmessage = (data) => {
+  lastReceivedMessage.value = JSON.stringify(data, null, 4);
 
-  if (formatted) {
-    lastReceivedMessage.value = formatted;
-  }
+  const { messageChannel, messageBody } = data;
   if (messageChannel && messageBody) {
     const messageObject = new Message(messageChannel, messageBody);
     if (messageBody) messages.add(messageObject);
   }
-});
+};
+
+UDN.connect(`ws://${window.location.host}`)
 
 // STATE
 // messages
@@ -66,36 +69,16 @@ export const isMessageEmpty = React.createProxyState(
 );
 
 // METHODS
-export function formatMessage(message: MessageEvent<any>): string | undefined {
-  const object = parseMessage(message);
-  const lines = Object.entries(object).map(
-    (entry) => `${entry[0]}: ${entry[1]}`
-  );
-  return lines.join("\n");
-}
-
-export function parseMessage(message: MessageEvent<any>) {
-  return JSON.parse(message.data.toString());
-}
-
-export function sendToWS(object: any) {
-  const stringified = JSON.stringify(object);
-  ws.send(stringified);
-}
-
 export function subscribe() {
-  sendToWS({ subscribeChannel: subscriptionChannel.value });
+  UDN.subscribe(subscriptionChannel.value);
 }
 
 export function unsubscribe() {
-  sendToWS({ unsubscribeChannel: subscriptionChannel.value });
+  UDN.unsubscribe(subscriptionChannel.value);
 }
 
 export function sendMessage() {
   if (isMessageEmpty.value == true) return;
-  sendToWS({
-    messageChannel: newMessageChannel.value,
-    messageBody: newMessageBody.value,
-  });
+  UDN.sendMessage(newMessageChannel.value, newMessageBody.value);
   newMessageBody.value = "";
 }

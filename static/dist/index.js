@@ -182,6 +182,65 @@
     return element;
   }
 
+  // ../node_modules/udn-frontend/index.ts
+  var UDNFrontend = class {
+    ws;
+    // handlers
+    connectionHandler = () => {
+    };
+    disconnectionHandler = () => {
+    };
+    messageHandler = (data) => {
+    };
+    // init
+    set onconnect(handler) {
+      this.connectionHandler = handler;
+    }
+    set ondisconnect(handler) {
+      this.disconnectionHandler = handler;
+    }
+    set onmessage(handler) {
+      this.messageHandler = handler;
+    }
+    // utility methods
+    send(messageObject) {
+      if (this.ws == void 0) return false;
+      const messageString = JSON.stringify(messageObject);
+      this.ws.send(messageString);
+      return true;
+    }
+    // public methods
+    connect(address) {
+      this.ws = new WebSocket(address);
+      this.ws.addEventListener("open", this.connectionHandler);
+      this.ws.addEventListener("close", this.disconnectionHandler);
+      this.ws.addEventListener("message", (message) => {
+        const dataString = message.data.toString();
+        const data = JSON.parse(dataString);
+        this.messageHandler(data);
+      });
+    }
+    sendMessage(channel, body) {
+      const messageObject = {
+        messageChannel: channel,
+        messageBody: body
+      };
+      return this.send(messageObject);
+    }
+    subscribe(channel) {
+      const messageObject = {
+        subscribeChannel: channel
+      };
+      return this.send(messageObject);
+    }
+    unsubscribe(channel) {
+      const messageObject = {
+        unsubscribeChannel: channel
+      };
+      return this.send(messageObject);
+    }
+  };
+
   // src/translations.tsx
   var staticTextEnglish = {
     channel: "Channel",
@@ -255,19 +314,20 @@
     }
     uuid = new UUID();
   };
-  var ws = new WebSocket(`ws://${window.location.host}`);
-  ws.addEventListener("open", () => updateStats());
-  ws.addEventListener("message", (message) => {
-    const formatted = formatMessage(message);
-    const { messageChannel, messageBody } = parseMessage(message);
-    if (formatted) {
-      lastReceivedMessage.value = formatted;
-    }
+  var UDN = new UDNFrontend();
+  UDN.onconnect = () => {
+    console.log("connected!");
+    updateStats();
+  };
+  UDN.onmessage = (data) => {
+    lastReceivedMessage.value = JSON.stringify(data, null, 4);
+    const { messageChannel, messageBody } = data;
     if (messageChannel && messageBody) {
       const messageObject = new Message(messageChannel, messageBody);
       if (messageBody) messages.add(messageObject);
     }
-  });
+  };
+  UDN.connect(`ws://${window.location.host}`);
   var messages = new ListState();
   var lastReceivedMessage = new State(
     getText("noMessagesReceived")
@@ -292,32 +352,15 @@
     [newMessageChannel, newMessageBody],
     () => newMessageChannel.value == "" || newMessageBody.value == ""
   );
-  function formatMessage(message) {
-    const object = parseMessage(message);
-    const lines = Object.entries(object).map(
-      (entry) => `${entry[0]}: ${entry[1]}`
-    );
-    return lines.join("\n");
-  }
-  function parseMessage(message) {
-    return JSON.parse(message.data.toString());
-  }
-  function sendToWS(object) {
-    const stringified = JSON.stringify(object);
-    ws.send(stringified);
-  }
   function subscribe() {
-    sendToWS({ subscribeChannel: subscriptionChannel.value });
+    UDN.subscribe(subscriptionChannel.value);
   }
   function unsubscribe() {
-    sendToWS({ unsubscribeChannel: subscriptionChannel.value });
+    UDN.unsubscribe(subscriptionChannel.value);
   }
   function sendMessage() {
     if (isMessageEmpty.value == true) return;
-    sendToWS({
-      messageChannel: newMessageChannel.value,
-      messageBody: newMessageBody.value
-    });
+    UDN.sendMessage(newMessageChannel.value, newMessageBody.value);
     newMessageBody.value = "";
   }
 
