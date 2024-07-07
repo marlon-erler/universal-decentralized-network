@@ -29,7 +29,7 @@ This is particularly useful in larger networks. Let's suppose Josh, Alice, Bob, 
 # Getting Started
 
 1. Make sure [bun](https://bun.sh/) is installed on your server.
-2. Run `bun install udn`.
+2. Run `bun add udn`.
 3. Start the server with `bun run start`.
 4. A configuration file will be created automatically.
 
