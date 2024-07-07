@@ -24,7 +24,7 @@ export async function getConfig(): Promise<typeof defaultConfig> {
 
     return configObject;
   } catch {
-    createConfig();
+    await createConfig();
     return defaultConfig;
   }
 }
