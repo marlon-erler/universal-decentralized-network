@@ -7,7 +7,7 @@ import {
   processMessage,
   trackConnection,
 } from "./websocket-handler";
-import { writeStatNumber, writeStatString, writeSuccess } from "./utility";
+import { getVersionNumber, writeStatNumber, writeStatString, writeSuccess } from "./utility";
 
 import Colors from "colors";
 import IP from "ip";
@@ -16,8 +16,10 @@ import { ServerWebSocket } from "bun";
 import { getConfig } from "./config-handler";
 
 // CONFIG
-const STATIC_DIR = Path.join(Path.dirname(import.meta.path), "static/dist");
-const DEFAULT_PAGE = "index.html";
+export const CODE_DIR = Path.dirname(import.meta.path);
+export const STATIC_DIR = Path.join(CODE_DIR, "static/dist");
+export const PACKAGE_FILE = Path.join(CODE_DIR, "package.json");
+export const DEFAULT_PAGE = "index.html";
 
 // TYPES
 export type WS = ServerWebSocket<unknown> | WebSocket;
@@ -26,6 +28,7 @@ export type WS = ServerWebSocket<unknown> | WebSocket;
 async function main() {
   // CONFIG
   const config = await getConfig();
+  const versionNumber = await getVersionNumber();
 
   // SERVER
   const server = Bun.serve({
@@ -73,6 +76,7 @@ async function main() {
     return [
       ["server url", server.url.toString()],
       ["server ip address", IP.address()],
+      ["server version", versionNumber]
     ];
   }
 
@@ -85,9 +89,11 @@ async function main() {
 
   function updateCLI() {
     console.clear();
-    
+
     console.log(Colors.bold.bgWhite("UNIVERSAL DECENTRALIZED NETWORK"));
-    console.log(Colors.yellow("relevant output is available in the 'logs' file"));
+    console.log(
+      Colors.yellow("relevant output is available in the 'logs' file")
+    );
     console.log();
 
     console.log(new Date().toLocaleString());
@@ -95,7 +101,7 @@ async function main() {
 
     getServerStats().forEach((entry) => writeStatString(...entry));
     console.log();
-    
+
     getWebSocketStats().forEach((entry) => writeStatNumber(...entry));
     console.log();
   }

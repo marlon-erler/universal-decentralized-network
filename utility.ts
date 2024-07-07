@@ -1,17 +1,25 @@
 import Colors from "colors";
 import Fs from "fs/promises";
+import { PACKAGE_FILE } from ".";
 import { WebSocketMessage } from "./websocket-handler";
 
 // CONFIG
 const STAT_INDENT = 25;
 
-// SAFETY
-export function doIfIsString(
-  data: any,
-  cb: (data: string) => void
-): void {
+// MISC
+export function doIfIsString(data: any, cb: (data: string) => void): void {
   if (typeof data != "string" || data == "") return;
   cb(data);
+}
+
+export async function getVersionNumber(): Promise<string> {
+  try {
+    const packageString = await Bun.file(PACKAGE_FILE).text();
+    const packageObject = JSON.parse(packageString);
+    return packageObject.version;
+  } catch {
+    return "unknown";
+  }
 }
 
 // OUTPUT
