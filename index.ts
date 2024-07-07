@@ -4,7 +4,7 @@ import {
   addConnection,
   connectServers,
   forgetConnection,
-  getStats,
+  getWebSocketStats,
   processMessage,
 } from "./websocket-handler";
 import { writeInfo, writeStat, writeSuccess } from "./utility";
@@ -41,15 +41,15 @@ async function main() {
         case "/":
           return createFileResponse(defaultPage);
         case "/stats":
-          return new Response(JSON.stringify(getStats()));
+          return new Response(JSON.stringify(getAllStats()));
         default:
           return createFileResponse(requestPath);
       }
     },
 
     websocket: {
-      open() {
-        addConnection();
+      open(ws) {
+        addConnection(ws);
       },
       message(ws, message) {
         processMessage(ws, message.toString(), config);
@@ -68,6 +68,18 @@ async function main() {
   // OTHER SERVERS
   connectServers(config);
 
+  // AUDIT
+  function getServerStats(): [string, string][] {
+    return [
+      ["server url", server.url.toString()],
+      ["server ip address", IP.address()],
+    ];
+  }
+
+  function getAllStats(): [string, string | number][] {
+    return [...getServerStats(), ...getWebSocketStats()];
+  }
+
   // CLI
   writeSuccess(`###\nstarted up ${new Date().toLocaleString()}`);
   console.log("relevant output available in the 'logs' file");
@@ -80,11 +92,9 @@ async function main() {
     console.log(new Date().toLocaleString());
     console.log();
 
-    writeInfo("server url", Colors.bold.green(server.url.toString()));
-    writeInfo("server ip address", Colors.bold.green(IP.address()));
+    getServerStats().forEach((entry) => writeInfo(...entry));
     console.log();
-
-    getStats().forEach((entry) => writeStat(...entry));
+    getWebSocketStats().forEach((entry) => writeStat(...entry));
   }
 
   setInterval(updateCLI, 5000);

@@ -30,13 +30,17 @@ export interface WebSocketMessage {
 // TRACKING
 const knownMessageIds = new Set<string>();
 
-export let connectedClientCount = 0;
-export let disconnectedServerCount = 0;
 export const subscriptions = new SubscriptionMap();
-export const connectedServers = new Set<WebSocket>();
+export const clientsConnected = new Set<WS>();
+export const serversConnectedAsClient = new Set<WS>();
+export const serversConnected = new Set<WebSocket>();
 
-export function addConnection() {
-  connectedClientCount++;
+export function getServerCount() {
+  return serversConnected.size + serversConnectedAsClient.size;
+}
+
+export function addConnection(ws: WS) {
+  clientsConnected.add(ws);
 }
 
 export function trackSubscription(ws: WS, channel: string): void {
@@ -50,7 +54,7 @@ export function removeSubscription(ws: WS, channel: string): void {
 }
 
 export function forgetConnection(ws: WS): void {
-  connectedClientCount--;
+  clientsConnected.delete(ws);
   const channels = subscriptions.getChannelList(ws);
   channels?.forEach((channel) => {
     subscriptions.delete(ws, channel);
@@ -60,7 +64,7 @@ export function forgetConnection(ws: WS): void {
 // OTHER SERVERS
 export function connectServers(config: typeof defaultConfig): void {
   config.connectedServers.forEach((serverAddress) => {
-    const ws = connectServer(serverAddress, config);
+    connectServer(serverAddress, config);
   });
 }
 
@@ -70,7 +74,7 @@ export function connectServer(
 ): void {
   try {
     const ws = new WebSocket(address);
-    connectedServers.add(ws);
+    serversConnected.add(ws);
 
     ws.addEventListener("open", () => {
       writeSuccess(`connected to server at "${address}".`);
@@ -84,12 +88,10 @@ export function connectServer(
     });
 
     ws.addEventListener("close", () => {
-      connectedServers.delete(ws);
-      disconnectedServerCount++;
+      serversConnected.delete(ws);
       writeError(`server at "${address}" disconnected`);
     });
   } catch (error) {
-    disconnectedServerCount++;
     writeError(`failed to connect to server at "${address}": ${error}`);
   }
 }
@@ -109,13 +111,11 @@ export function subscribeChannel(server: WS, channel: string): void {
 }
 
 // AUDIT
-export function getStats(): [string, number][] {
+export function getWebSocketStats(): [string, number][] {
   return [
     ["channels", subscriptions.clientsPerChannel.size],
-    ["clients connected", connectedClientCount],
-    ["clients subscribing", subscriptions.channelsPerClient.size],
-    ["servers connected", connectedServers.size],
-    ["servers disconnected", disconnectedServerCount],
+    ["clients connected", clientsConnected.size],
+    ["servers connected", getServerCount()],
   ];
 }
 
@@ -147,6 +147,8 @@ export function processMessage(
     sendMessage(messageChannel, messageObject.messageBody, messageObject.uuid!);
   });
   if (messageObject.requestingServerConnection == true) {
+    clientsConnected.delete(ws);
+    serversConnectedAsClient.add(ws);
     subscribeChannels(ws, config);
   }
 }
