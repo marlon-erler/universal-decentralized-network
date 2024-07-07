@@ -2,6 +2,8 @@
 export const staticTextEnglish = {
   channel: "Channel",
   channel_placeholder: "my-channel",
+  disconnected: "Server disconnected",
+  reconnecting: "Reconnecting...",
   info: "Info",
   message: "Message",
   messages: "Messages",
@@ -23,6 +25,8 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   es: {
     channel: "Canal",
     channel_placeholder: "mi-canal",
+    disconnected: "Sin conneción",
+    reconnecting: "Conectando...",
     info: "Info",
     message: "Mensaje",
     messages: "Mensajes",
@@ -41,6 +45,8 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   de: {
     channel: "Kanal",
     channel_placeholder: "mein-kanal",
+    disconnected: "Verbindung getrennt",
+    reconnecting: "Verbindung wird hergestellt...",
     info: "Daten",
     message: "Nachricht",
     messages: "Nachrichten",

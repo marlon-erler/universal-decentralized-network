@@ -73,10 +73,11 @@ For TypeScript-based apps, you can use the [udn-frontend](https://github.com/mar
 The web interface of the server itself is based on my other two projects, [carbon-mini](https://github.com/marlon-erler/carbon-mini) and [bloatless-react](https://github.com/marlon-erler/bloatless-react).
 Both of these projects are very minimal, bloat-free, and quick to get started with. I'd suggest you to build your app based on the same foundation for a consistent user experience.
 
-1. Download [carbon-mini](https://github.com/marlon-erler/carbon-mini) from the releases page
-2. Install [bloatless-react](https://github.com/marlon-erler/bloatless-react)
-3. Install [udn-frontend](https://github.com/marlon-erler/udn-frontend)
-4. Start developing
+1. Download [carbon-mini](https://github.com/marlon-erler/carbon-mini) from the releases page and read the docs
+2. Install [bloatless-react](https://github.com/marlon-erler/bloatless-react) and read the docs
+3. Install [udn-frontend](https://github.com/marlon-erler/udn-frontend) and read the docs
+4. Generate your app icon [here](https://icongen.onrender.com/), move it to the `dist` directory
+5. Start developing
 
 ## Manual way
 

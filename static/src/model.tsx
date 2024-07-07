@@ -13,6 +13,7 @@ export class Message implements React.Identifiable {
 const UDN = new UDNFrontend();
 
 UDN.onconnect = () => {
+  isDisconnected.value = false;
   updateStats();
 };
 
@@ -26,9 +27,20 @@ UDN.onmessage = (data) => {
   }
 };
 
-UDN.connect(`ws://${window.location.host}`)
+UDN.ondisconnect = () => {
+  isDisconnected.value = true;
+  setTimeout(connect, 2000);
+};
+
+function connect() {
+  UDN.connect(`ws://${window.location.host}`);
+}
+connect();
 
 // STATE
+// connection
+export const isDisconnected = new React.State(true);
+
 // messages
 export const messages = new React.ListState<Message>();
 export const lastReceivedMessage = new React.State(

@@ -245,6 +245,8 @@
   var staticTextEnglish = {
     channel: "Channel",
     channel_placeholder: "my-channel",
+    disconnected: "Server disconnected",
+    reconnecting: "Reconnecting...",
     info: "Info",
     message: "Message",
     messages: "Messages",
@@ -265,6 +267,8 @@
     es: {
       channel: "Canal",
       channel_placeholder: "mi-canal",
+      disconnected: "Sin conneci\xF3n",
+      reconnecting: "Conectando...",
       info: "Info",
       message: "Mensaje",
       messages: "Mensajes",
@@ -283,6 +287,8 @@
     de: {
       channel: "Kanal",
       channel_placeholder: "mein-kanal",
+      disconnected: "Verbindung getrennt",
+      reconnecting: "Verbindung wird hergestellt...",
       info: "Daten",
       message: "Nachricht",
       messages: "Nachrichten",
@@ -316,6 +322,7 @@
   };
   var UDN = new UDNFrontend();
   UDN.onconnect = () => {
+    isDisconnected.value = false;
     updateStats();
   };
   UDN.onmessage = (data) => {
@@ -326,7 +333,15 @@
       if (messageBody) messages.add(messageObject);
     }
   };
-  UDN.connect(`ws://${window.location.host}`);
+  UDN.ondisconnect = () => {
+    isDisconnected.value = true;
+    setTimeout(connect, 2e3);
+  };
+  function connect() {
+    UDN.connect(`ws://${window.location.host}`);
+  }
+  connect();
+  var isDisconnected = new State(true);
   var messages = new ListState();
   var lastReceivedMessage = new State(
     getText("noMessagesReceived")
@@ -438,4 +453,7 @@
     /* @__PURE__ */ createElement("menu", null, /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#info-screen", active: true }, /* @__PURE__ */ createElement("span", { class: "icon" }, "info"), getText("info")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#main-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "settings"), getText("settings")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#message-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "chat"), getText("messages")))
   );
   document.querySelector("main").append(InfoScreen(), MainScreen(), MessageScreen());
+  document.body.append(
+    /* @__PURE__ */ createElement("div", { class: "modal", "toggle:open": isDisconnected }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("main", null, /* @__PURE__ */ createElement("div", { class: "flex-column align-center justify-center width-100 height-100", style: "gap: 1rem" }, /* @__PURE__ */ createElement("span", { class: "icon error", style: "font-size: 3rem" }, "signal_disconnected"), /* @__PURE__ */ createElement("h1", { class: "error" }, getText("disconnected")), /* @__PURE__ */ createElement("p", { class: "secondary" }, getText("reconnecting"))))))
+  );
 })();
