@@ -18,6 +18,7 @@ export async function getConfig(): Promise<typeof defaultConfig> {
     const configString = await Bun.file(configPath).text();
     const configObject = JSON.parse(configString);
 
+    // validate config file
     Object.keys(defaultConfig).forEach((key) => {
       if (!configObject[key]) throw null;
     });

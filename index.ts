@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 
 import {
-  addConnection,
   connectServers,
   forgetConnection,
   getWebSocketStats,
   processMessage,
+  trackConnection,
 } from "./websocket-handler";
-import { writeInfo, writeStat, writeSuccess } from "./utility";
+import { writeStatNumber, writeStatString, writeSuccess } from "./utility";
 
 import Colors from "colors";
 import IP from "ip";
@@ -16,8 +16,8 @@ import { ServerWebSocket } from "bun";
 import { getConfig } from "./config-handler";
 
 // CONFIG
-const staticDir = Path.join(Path.dirname(import.meta.path), "static/dist");
-const defaultPage = "index.html";
+const STATIC_DIR = Path.join(Path.dirname(import.meta.path), "static/dist");
+const DEFAULT_PAGE = "index.html";
 
 // TYPES
 export type WS = ServerWebSocket<unknown> | WebSocket;
@@ -39,7 +39,7 @@ async function main() {
       const requestPath = new URL(request.url).pathname;
       switch (requestPath) {
         case "/":
-          return createFileResponse(defaultPage);
+          return createFileResponse(DEFAULT_PAGE);
         case "/stats":
           return new Response(JSON.stringify(getAllStats()));
         default:
@@ -49,7 +49,7 @@ async function main() {
 
     websocket: {
       open(ws) {
-        addConnection(ws);
+        trackConnection(ws);
       },
       message(ws, message) {
         processMessage(ws, message.toString(), config);
@@ -61,7 +61,7 @@ async function main() {
   });
 
   function createFileResponse(requestPath: string): Response {
-    const fullPath = Path.join(staticDir, requestPath);
+    const fullPath = Path.join(STATIC_DIR, requestPath);
     return new Response(Bun.file(fullPath));
   }
 
@@ -82,21 +82,25 @@ async function main() {
 
   // CLI
   writeSuccess(`###\nstarted up ${new Date().toLocaleString()}`);
-  console.log("relevant output available in the 'logs' file");
 
   function updateCLI() {
     console.clear();
+    
     console.log(Colors.bold.bgWhite("UNIVERSAL DECENTRALIZED NETWORK"));
+    console.log(Colors.yellow("relevant output is available in the 'logs' file"));
     console.log();
 
     console.log(new Date().toLocaleString());
     console.log();
 
-    getServerStats().forEach((entry) => writeInfo(...entry));
+    getServerStats().forEach((entry) => writeStatString(...entry));
     console.log();
-    getWebSocketStats().forEach((entry) => writeStat(...entry));
+    
+    getWebSocketStats().forEach((entry) => writeStatNumber(...entry));
+    console.log();
   }
 
+  setTimeout(updateCLI, 1000);
   setInterval(updateCLI, 5000);
 }
 

@@ -3,10 +3,10 @@ import Fs from "fs/promises";
 import { WebSocketMessage } from "./websocket-handler";
 
 // CONFIG
-const indent = 25;
+const STAT_INDENT = 25;
 
-// METHODS
-export function guardStringNotEmpty(
+// SAFETY
+export function doIfIsString(
   data: any,
   cb: (data: string) => void
 ): void {
@@ -14,21 +14,23 @@ export function guardStringNotEmpty(
   cb(data);
 }
 
-// writing
+// OUTPUT
 async function writeToLogFile(message: string): Promise<void> {
   await Fs.appendFile("logs", `${message}\n`);
 }
 
-export function writeInfo(label: string, value: string): void {
-  console.log(`${label.padEnd(indent, " ")} ${Colors.bold.green(value)}`);
+// stats
+export function writeStatString(label: string, value: string): void {
+  console.log(`${label.padEnd(STAT_INDENT, " ")} ${Colors.bold.green(value)}`);
 }
 
-export function writeStat(label: string, value: number): void {
+export function writeStatNumber(label: string, value: number): void {
   console.log(
-    `${label.padEnd(indent, " ")} ${Colors.bold.blue(value.toString())}`
+    `${label.padEnd(STAT_INDENT, " ")} ${Colors.bold.blue(value.toString())}`
   );
 }
 
+// logging
 export function writeError(message: string): void {
   console.log(Colors.bold.red(message));
   writeToLogFile(message);
@@ -39,7 +41,7 @@ export function writeSuccess(message: string): void {
   writeToLogFile(message);
 }
 
-// messages
+// MESSAGES
 export function stringifyMessage(messageObject: WebSocketMessage): string {
   return JSON.stringify(messageObject);
 }

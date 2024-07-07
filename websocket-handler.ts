@@ -1,5 +1,5 @@
 import {
-  guardStringNotEmpty,
+  doIfIsString,
   parseMessage,
   stringifyMessage,
   writeError,
@@ -30,7 +30,7 @@ export interface WebSocketMessage {
 // TRACKING
 const knownMessageIds = new Set<string>();
 
-export const subscriptions = new SubscriptionMap();
+export const subscriptionMap = new SubscriptionMap();
 export const clientsConnected = new Set<WS>();
 export const serversConnectedAsClient = new Set<WS>();
 export const serversConnected = new Set<WebSocket>();
@@ -39,26 +39,26 @@ export function getServerCount() {
   return serversConnected.size + serversConnectedAsClient.size;
 }
 
-export function addConnection(ws: WS) {
+export function trackConnection(ws: WS) {
   clientsConnected.add(ws);
-}
-
-export function trackSubscription(ws: WS, channel: string): void {
-  subscriptions.set(ws, channel);
-  confirmSubscription(ws, channel);
-}
-
-export function removeSubscription(ws: WS, channel: string): void {
-  subscriptions.delete(ws, channel);
-  confirmSubscription(ws, channel);
 }
 
 export function forgetConnection(ws: WS): void {
   clientsConnected.delete(ws);
-  const channels = subscriptions.getChannelList(ws);
+  const channels = subscriptionMap.getChannelList(ws);
   channels?.forEach((channel) => {
-    subscriptions.delete(ws, channel);
+    subscriptionMap.delete(ws, channel);
   });
+}
+
+export function trackSubscription(ws: WS, channel: string): void {
+  subscriptionMap.set(ws, channel);
+  confirmSubscription(ws, channel);
+}
+
+export function forgetSubscription(ws: WS, channel: string): void {
+  subscriptionMap.delete(ws, channel);
+  confirmSubscription(ws, channel);
 }
 
 // OTHER SERVERS
@@ -73,9 +73,11 @@ export function connectServer(
   config: typeof defaultConfig
 ): void {
   try {
+    // connect
     const ws = new WebSocket(address);
     serversConnected.add(ws);
 
+    // listen
     ws.addEventListener("open", () => {
       writeSuccess(`connected to server at "${address}".`);
 
@@ -113,7 +115,7 @@ export function subscribeChannel(server: WS, channel: string): void {
 // AUDIT
 export function getWebSocketStats(): [string, number][] {
   return [
-    ["channels", subscriptions.clientsPerChannel.size],
+    ["channels", subscriptionMap.clientsPerChannel.size],
     ["clients connected", clientsConnected.size],
     ["servers connected", getServerCount()],
   ];
@@ -125,27 +127,31 @@ export function processMessage(
   messageString: string,
   config: typeof defaultConfig
 ): void {
+  // check id
   const messageObject: WebSocketMessage = parseMessage(messageString);
-  if (!messageObject.uuid) {
+  if (!messageObject.uuid) { // assign if no id
     messageObject.uuid = Crypto.randomUUID();
-  } else {
+  } else { // ignore if already seen
     if (knownMessageIds.has(messageObject.uuid)) return;
   }
+  // remember message
   knownMessageIds.add(messageObject.uuid);
 
-  guardStringNotEmpty(messageObject.subscribeChannel, (subscribeChannel) => {
+  // subscriptions
+  doIfIsString(messageObject.subscribeChannel, (subscribeChannel) => {
     trackSubscription(ws, subscribeChannel);
   });
-  guardStringNotEmpty(
-    messageObject.unsubscribeChannel,
-    (unsubscribeChannel) => {
-      removeSubscription(ws, unsubscribeChannel);
-    }
-  );
-  guardStringNotEmpty(messageObject.messageChannel, (messageChannel) => {
+  doIfIsString(messageObject.unsubscribeChannel, (unsubscribeChannel) => {
+    forgetSubscription(ws, unsubscribeChannel);
+  });
+
+  // message
+  doIfIsString(messageObject.messageChannel, (messageChannel) => {
     if (messageObject.messageBody == undefined) return;
     sendMessage(messageChannel, messageObject.messageBody, messageObject.uuid!);
   });
+
+  // other server
   if (messageObject.requestingServerConnection == true) {
     clientsConnected.delete(ws);
     serversConnectedAsClient.add(ws);
@@ -165,7 +171,7 @@ export function sendMessage(
   const messageString = stringifyMessage(messageObject);
 
   channels.forEach((channel) => {
-    const subscribers = subscriptions.getClientList(channel);
+    const subscribers = subscriptionMap.getClientList(channel);
     subscribers?.forEach((ws) => ws.send(messageString));
   });
 }
@@ -181,7 +187,7 @@ function requestServerConnection(ws: WS): void {
 function confirmSubscription(ws: WS, messageChannel: string): void {
   const messageObject = {
     messageChannel,
-    subscribed: subscriptions.getChannelList(ws) ? true : false,
+    subscribed: subscriptionMap.getChannelList(ws) ? true : false,
   };
   const messageString = stringifyMessage(messageObject);
   ws.send(messageString);
