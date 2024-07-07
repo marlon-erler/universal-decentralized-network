@@ -33,7 +33,7 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
     message_placeholder: "Hola!",
     message_placeholder_generic: "Nuevo mensaje",
     noMessagesReceived: "Sin mensajes",
-    messageLastReceived: "Ültimo mensaje",
+    messageLastReceived: "Último mensaje",
     messagesReceived: "Todos los Mensajes",
     send: "Enviar",
     serverInfo: "Información",
@@ -65,11 +65,9 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
 };
 
 export function getText(key: keyof typeof staticTextEnglish): string {
-  if (
-    translations[navigator.language] &&
-    translations[navigator.language][key]
-  ) {
-    return translations[navigator.language.substring(0, 2)][key];
+  const language = navigator.language.substring(0, 2);
+  if (translations[language]) {
+    return translations[language][key];
   }
   return translations.en[key];
 }

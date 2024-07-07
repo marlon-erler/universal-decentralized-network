@@ -306,8 +306,9 @@
     }
   };
   function getText(key) {
-    if (translations[navigator.language] && translations[navigator.language][key]) {
-      return translations[navigator.language.substring(0, 2)][key];
+    const language = navigator.language.substring(0, 2);
+    if (translations[language]) {
+      return translations[language][key];
     }
     return translations.en[key];
   }
