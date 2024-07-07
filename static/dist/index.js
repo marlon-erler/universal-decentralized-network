@@ -316,7 +316,6 @@
   };
   var UDN = new UDNFrontend();
   UDN.onconnect = () => {
-    console.log("connected!");
     updateStats();
   };
   UDN.onmessage = (data) => {

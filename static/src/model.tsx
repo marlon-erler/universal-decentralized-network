@@ -13,7 +13,6 @@ export class Message implements React.Identifiable {
 const UDN = new UDNFrontend();
 
 UDN.onconnect = () => {
-  console.log("connected!")
   updateStats();
 };
 
