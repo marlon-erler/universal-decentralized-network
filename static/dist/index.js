@@ -275,7 +275,7 @@
       message_placeholder: "Hola!",
       message_placeholder_generic: "Nuevo mensaje",
       noMessagesReceived: "Sin mensajes",
-      messageLastReceived: "\xDCltimo mensaje",
+      messageLastReceived: "\xDAltimo mensaje",
       messagesReceived: "Todos los Mensajes",
       send: "Enviar",
       serverInfo: "Informaci\xF3n",
@@ -295,13 +295,13 @@
       message_placeholder: "Hallo!",
       message_placeholder_generic: "Neue Nachricht",
       noMessagesReceived: "Keine Nachrichten",
-      messageLastReceived: "Letzte Nachrichte",
+      messageLastReceived: "Letzte Nachricht",
       messagesReceived: "Empfangene Nachrichten",
       send: "Senden",
       serverInfo: "Serverdaten",
       settings: "Einstellungen",
-      subscribeToChannel: "Kanal Abonnieren",
-      subscribe: "Abonnieren",
+      subscribeToChannel: "Kanal beitreten",
+      subscribe: "Beitreten",
       unsubscribe: "Verlassen"
     }
   };
