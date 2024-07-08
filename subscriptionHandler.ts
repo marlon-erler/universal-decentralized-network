@@ -80,7 +80,6 @@ export class Mailbox implements Subscriber {
   }
 
   sendUnreadMessages(): void {
-    console.log(this.messages);
     this.messages.forEach((message) => {
       if (!this._ws) return;
 
