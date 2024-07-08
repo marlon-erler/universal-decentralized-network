@@ -26,7 +26,7 @@ export interface WebSocketMessage {
   // subscribing to channel
   subscribeChannel?: string;
   unsubscribeChannel?: string;
-  subscribed?: string; // sent by server to confirm subscription
+  subscribed?: boolean; // sent by server to confirm subscription
 
   //sending message
   messageChannel?: string;
