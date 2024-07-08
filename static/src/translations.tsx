@@ -25,7 +25,7 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   es: {
     channel: "Canal",
     channel_placeholder: "mi-canal",
-    disconnected: "Sin conneción",
+    disconnected: "Sin coneción",
     reconnecting: "Conectando...",
     info: "Info",
     message: "Mensaje",
