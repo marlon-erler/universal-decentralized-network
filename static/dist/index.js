@@ -231,16 +231,18 @@
   // node_modules/udn-frontend/index.ts
   var UDNFrontend = class {
     ws;
-    // handlers
+    // HANDLERS
     connectionHandler = () => {
     };
     disconnectionHandler = () => {
     };
     messageHandler = (data) => {
     };
-    mailboxHandler = (mailboxId2) => {
+    mailboxHandler = (mailboxId) => {
     };
-    // init
+    mailboxConnectionHandler = (mailboxId) => {
+    };
+    // INIT
     set onconnect(handler) {
       this.connectionHandler = handler;
     }
@@ -253,14 +255,18 @@
     set onmailbox(handler) {
       this.mailboxHandler = handler;
     }
-    // utility methods
+    set onmailboxconnect(handler) {
+      this.mailboxConnectionHandler = handler;
+    }
+    // UTILITY METHODS
     send(messageObject) {
       if (this.ws == void 0) return false;
       const messageString = JSON.stringify(messageObject);
       this.ws.send(messageString);
       return true;
     }
-    // public methods
+    // PUBLIC METHODS
+    // connection
     connect(address) {
       this.disconnect();
       this.ws = new WebSocket(address);
@@ -271,6 +277,8 @@
         const data = JSON.parse(dataString);
         if (data.assignedMailboxId) {
           return this.mailboxHandler(data.assignedMailboxId);
+        } else if (data.connectedMailboxId) {
+          return this.mailboxConnectionHandler(data.assignedMailboxId);
         } else {
           this.messageHandler(data);
         }
@@ -279,6 +287,7 @@
     disconnect() {
       this.ws?.close();
     }
+    // message
     sendMessage(channel, body) {
       const messageObject = {
         messageChannel: channel,
@@ -286,6 +295,7 @@
       };
       return this.send(messageObject);
     }
+    // subscription
     subscribe(channel) {
       const messageObject = {
         subscribeChannel: channel
@@ -298,15 +308,22 @@
       };
       return this.send(messageObject);
     }
+    // mailbox
     requestMailbox() {
       const messageObject = {
         requestingMailboxSetup: true
       };
       return this.send(messageObject);
     }
-    accessMailbox(mailboxId2) {
+    connectMailbox(mailboxId) {
       const messageObject = {
-        requestedMailbox: mailboxId2
+        requestedMailbox: mailboxId
+      };
+      return this.send(messageObject);
+    }
+    deleteMailbox(mailboxId) {
+      const messageObject = {
+        deletingMailbox: mailboxId
       };
       return this.send(messageObject);
     }
@@ -315,7 +332,9 @@
   // src/translations.tsx
   var staticTextEnglish = {
     mailbox: "Mailbox",
-    requestMailbox: "Request Mailbox",
+    requestMailbox: "Request",
+    deleteMailbox: "Delete",
+    mailboxConnected: "Mailbox connected",
     channel: "Channel",
     channel_placeholder: "my-channel",
     disconnected: "Server disconnected",
@@ -339,7 +358,9 @@
     en: staticTextEnglish,
     es: {
       mailbox: "Buz\xF3n",
-      requestMailbox: "Solicitar buz\xF3n",
+      requestMailbox: "Solicitar",
+      deleteMailbox: "Eliminar",
+      mailboxConnected: "Buz\xF3n conectado",
       channel: "Canal",
       channel_placeholder: "mi-canal",
       disconnected: "Sin coneci\xF3n",
@@ -361,7 +382,9 @@
     },
     de: {
       mailbox: "Briefkasten",
-      requestMailbox: "Briefkasten beantragen",
+      requestMailbox: "Beantragen",
+      deleteMailbox: "L\xF6schen",
+      mailboxConnected: "Briefkasten verbunden",
       channel: "Kanal",
       channel_placeholder: "mein-kanal",
       disconnected: "Verbindung getrennt",
@@ -398,35 +421,9 @@
     }
     id = UUID();
   };
-  var UDN = new UDNFrontend();
-  UDN.onconnect = () => {
-    isDisconnected.value = false;
-    updateStats();
-    if (mailboxId.value != "") {
-      UDN.accessMailbox(mailboxId.value);
-    }
-  };
-  UDN.onmessage = (data) => {
-    lastReceivedMessage.value = JSON.stringify(data, null, 4);
-    const { messageChannel, messageBody } = data;
-    if (messageChannel && messageBody) {
-      const messageObject = new Message(messageChannel, messageBody);
-      if (messageBody) messages.add(messageObject);
-    }
-  };
-  UDN.onmailbox = (id) => {
-    mailboxId.value = id;
-  };
-  UDN.ondisconnect = () => {
-    isDisconnected.value = true;
-    setTimeout(connect, 2e3);
-  };
-  function connect() {
-    UDN.connect(`wss://${window.location.host}`);
-  }
-  connect();
   var isDisconnected = new State(true);
-  var mailboxId = restoreState("mailbox-id", "");
+  var storedMailboxId = restoreState("mailbox-id", "");
+  var isMailboxDisonnected = new State(true);
   var messages = new ListState();
   var lastReceivedMessage = new State(
     getText("noMessagesReceived")
@@ -451,6 +448,42 @@
     [newMessageChannel, newMessageBody],
     () => newMessageChannel.value == "" || newMessageBody.value == ""
   );
+  var UDN = new UDNFrontend();
+  UDN.onconnect = () => {
+    isDisconnected.value = false;
+    updateStats();
+    if (storedMailboxId.value != "") {
+      UDN.connectMailbox(storedMailboxId.value);
+    }
+  };
+  UDN.onmessage = (data) => {
+    lastReceivedMessage.value = JSON.stringify(data, null, 4);
+    const { messageChannel, messageBody } = data;
+    if (messageChannel && messageBody) {
+      const messageObject = new Message(messageChannel, messageBody);
+      if (messageBody) messages.add(messageObject);
+    }
+  };
+  UDN.onmailbox = (id) => {
+    console.log(id);
+    storedMailboxId.value = id;
+    UDN.connectMailbox(id);
+  };
+  UDN.onmailboxconnect = (id) => {
+    console.log(id);
+    isMailboxDisonnected.value = false;
+  };
+  UDN.ondisconnect = () => {
+    isDisconnected.value = true;
+    isMailboxDisonnected.value = true;
+    setTimeout(connect, 1e3);
+  };
+  function connect() {
+    UDN.connect(
+      `${window.location.protocol.replace("http", "ws")}//${window.location.host}`
+    );
+  }
+  connect();
   function subscribe() {
     UDN.subscribe(subscriptionChannel.value);
   }
@@ -463,7 +496,12 @@
     newMessageBody.value = "";
   }
   function requestMailbox() {
+    deleteMailbox();
     UDN.requestMailbox();
+  }
+  function deleteMailbox() {
+    console.log("test");
+    UDN.deleteMailbox(storedMailboxId.value);
   }
 
   // src/infoScreen.tsx
@@ -473,7 +511,24 @@
 
   // src/mainScreen.tsx
   function MainScreen() {
-    return /* @__PURE__ */ createElement("article", { id: "main-screen" }, /* @__PURE__ */ createElement("header", null, getText("settings")), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("messageLastReceived")), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": lastReceivedMessage }))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("mailbox")), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": mailboxId }))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement("button", { class: "primary width-100", "on:click": requestMailbox }, getText("requestMailbox"), /* @__PURE__ */ createElement("span", { class: "icon" }, "inbox"))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("subscribeToChannel")), /* @__PURE__ */ createElement(
+    return /* @__PURE__ */ createElement("article", { id: "main-screen" }, /* @__PURE__ */ createElement("header", null, getText("settings")), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("messageLastReceived")), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": lastReceivedMessage }))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("mailbox")), /* @__PURE__ */ createElement("p", { class: "secondary", "toggle:hidden": isMailboxDisonnected }, getText("mailboxConnected")))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement(
+      "button",
+      {
+        class: "danger width-50",
+        "on:click": deleteMailbox,
+        "toggle:disabled": isMailboxDisonnected
+      },
+      getText("deleteMailbox")
+    ), /* @__PURE__ */ createElement(
+      "button",
+      {
+        class: "primary width-50",
+        "on:click": requestMailbox,
+        "toggle:disabled": isDisconnected
+      },
+      getText("requestMailbox"),
+      /* @__PURE__ */ createElement("span", { class: "icon" }, "inbox")
+    )), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("subscribeToChannel")), /* @__PURE__ */ createElement(
       "input",
       {
         placeholder: getText("channel_placeholder"),

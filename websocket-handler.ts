@@ -1,8 +1,6 @@
 import { Mailbox, Subscriber, SubscriptionMap } from "./subscriptionHandler";
 import {
   doIfIsString,
-  getMailboxIfExists,
-  getMostAppropriateSubscriber,
   parseMessage,
   stringifyMessage,
   writeError,
@@ -22,8 +20,10 @@ export interface WebSocketMessage {
 
   // mailbox
   requestingMailboxSetup?: boolean;
-  assignedMailboxId?: string; // sent by server
   requestedMailbox?: string;
+  deletingMailbox?: string;
+  assignedMailboxId?: string; // sent by server
+  connectedMailboxId?: string; // sent by server
 
   // subscribing to channel
   subscribeChannel?: string;
@@ -42,7 +42,6 @@ export const subscriptionMap = new SubscriptionMap();
 
 export const clientsConnected = new Set<WS>();
 export const mailboxes = new Map<string, Mailbox>();
-export const mailboxIdsPerClient = new Map<WS, string>();
 
 export const serversConnectedAsClient = new Set<WS>();
 export const serversConnected = new Set<WebSocket>();
@@ -170,10 +169,10 @@ export function processMessage(
 
   // SUBSCRIPTIONS
   doIfIsString(messageObject.subscribeChannel, (subscribeChannel) => {
-    trackSubscription(getMostAppropriateSubscriber(ws), subscribeChannel);
+    trackSubscription(ws, subscribeChannel);
   });
   doIfIsString(messageObject.unsubscribeChannel, (unsubscribeChannel) => {
-    forgetSubscription(getMostAppropriateSubscriber(ws), unsubscribeChannel);
+    forgetSubscription(ws, unsubscribeChannel);
   });
 
   // MESSAGE
@@ -192,6 +191,12 @@ export function processMessage(
     if (!mailbox) return;
     mailbox.ws = ws;
   });
+  doIfIsString(messageObject.deletingMailbox, (deletingMailbox) => {
+    const mailbox = mailboxes.get(deletingMailbox);
+    if (!mailbox) return;
+    removeMailbox(mailbox);
+    ws.close();
+  });
 
   // OTHER SERVER
   if (messageObject.requestingServerConnection == true) {
@@ -205,8 +210,7 @@ export function processMessage(
 export function removeExpiredMailboxes() {
   const today = new Date();
   mailboxes.forEach((mailbox) => {
-    if (mailbox.expiryDate > today) return;
-    removeMailbox(mailbox);
+    if (mailbox.isExpired) removeMailbox(mailbox);
   });
 }
 

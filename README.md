@@ -16,7 +16,7 @@ The UDN project aims to provide decentralized and localhost-able infrastructure 
   - [Getting Started](#getting-started)
   - [Configuration](#configuration)
   - [TLS](#tls)
-  - [Connecting multiple servers](#connecting-multiple-servers)
+  - [Connecting Multiple Servers](#connecting-multiple-servers)
 - [App Developer's Guide](#app-developers-guide)
   - [Guidelines](#guidelines)
   - [The Recommended Way](#the-recommended-way)
@@ -204,7 +204,7 @@ In local networks, you will likely need co create a self-signed certificate. Thi
 2. Create the certificate with `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365`. This command will ask you a few questions and create the files required by your server.
 3. Provide the passphrase via the `TLS_PASSPHRASE` environment variable (i.e. `export TLS_PASSPHRASE="my-securepass-phrase"`);
 
-## Connecting multiple servers
+## Connecting Multiple Servers
 
 1. Add the WebSocket addresses of servers you want to connect to the `connectedServers` array in the configuration file.
 2. Add secondary channels to the `subscribedChannels` array in the configuration file.

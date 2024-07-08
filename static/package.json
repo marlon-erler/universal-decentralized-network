@@ -2,7 +2,7 @@
   "dependencies": {
     "bloatless-react": "1.2.5-beta1",
     "esbuild": "latest",
-    "udn-frontend": "1.0.4-beta2"
+    "udn-frontend": "1.0.4-beta4"
   },
   "scripts": {
     "build": "esbuild src/index.tsx --bundle --outdir=dist"

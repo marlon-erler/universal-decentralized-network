@@ -1,7 +1,9 @@
 // STATIC
 export const staticTextEnglish = {
   mailbox: "Mailbox",
-  requestMailbox: "Request Mailbox",
+  requestMailbox: "Request",
+  deleteMailbox: "Delete",
+  mailboxConnected: "Mailbox connected",
   channel: "Channel",
   channel_placeholder: "my-channel",
   disconnected: "Server disconnected",
@@ -26,7 +28,9 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   en: staticTextEnglish,
   es: {
     mailbox: "Buzón",
-    requestMailbox: "Solicitar buzón",
+    requestMailbox: "Solicitar",
+    deleteMailbox: "Eliminar",
+    mailboxConnected: "Buzón conectado",
     channel: "Canal",
     channel_placeholder: "mi-canal",
     disconnected: "Sin coneción",
@@ -48,7 +52,9 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   },
   de: {
     mailbox: "Briefkasten",
-    requestMailbox: "Briefkasten beantragen",
+    requestMailbox: "Beantragen",
+    deleteMailbox: "Löschen",
+    mailboxConnected: "Briefkasten verbunden",
     channel: "Kanal",
     channel_placeholder: "mein-kanal",
     disconnected: "Verbindung getrennt",

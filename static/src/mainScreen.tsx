@@ -1,9 +1,11 @@
 import * as React from "bloatless-react";
 
 import {
+  deleteMailbox,
+  isDisconnected,
+  isMailboxDisonnected,
   isMessageEmpty,
   lastReceivedMessage,
-  mailboxId,
   newMessageBody,
   newMessageChannel,
   requestMailbox,
@@ -33,12 +35,25 @@ export function MainScreen() {
         <div class="tile width-input">
           <div>
             <b>{getText("mailbox")}</b>
-            <p class="secondary" subscribe:innerText={mailboxId}></p>
+            <p class="secondary" toggle:hidden={isMailboxDisonnected}>
+              {getText("mailboxConnected")}
+            </p>
           </div>
         </div>
 
         <div class="flex-row width-input justify-end">
-          <button class="primary width-100" on:click={requestMailbox}>
+          <button
+            class="danger width-50"
+            on:click={deleteMailbox}
+            toggle:disabled={isMailboxDisonnected}
+          >
+            {getText("deleteMailbox")}
+          </button>
+          <button
+            class="primary width-50"
+            on:click={requestMailbox}
+            toggle:disabled={isDisconnected}
+          >
             {getText("requestMailbox")}
             <span class="icon">inbox</span>
           </button>

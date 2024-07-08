@@ -14,12 +14,19 @@ export interface Subscriber {
 export class Mailbox implements Subscriber {
   // basic data
   id = Crypto.randomUUID();
-  dateLastChecked = new Date();
+  dateLastUsed = new Date();
 
   get expiryDate() {
-    const expiryDate = new Date(this.dateLastChecked);
+    const expiryDate = new Date(this.dateLastUsed);
     expiryDate.setDate(expiryDate.getDate() + 7);
     return expiryDate;
+  }
+
+  get isExpired() {
+    if (this.ws) return false;
+
+    const today = new Date();
+    return this.expiryDate < today;
   }
 
   // init
@@ -39,6 +46,17 @@ export class Mailbox implements Subscriber {
     );
   }
 
+  confirmConnection(): void {
+    if (!this.ws) return;
+
+    sendWebSocketMessage(
+      {
+        connectedMailboxId: this.id,
+      },
+      this.ws
+    );
+  }
+
   // storage
   messages = new Set<string>();
 
@@ -51,8 +69,9 @@ export class Mailbox implements Subscriber {
 
   set ws(ws: WS) {
     this._ws = ws;
-    this.dateLastChecked = new Date();
+    this.dateLastUsed = new Date();
 
+    this.confirmConnection();
     this.sendUnreadMessages();
 
     const channels = subscriptionMap.getChannelList(ws);
@@ -66,14 +85,11 @@ export class Mailbox implements Subscriber {
     subscriptionMap.set(this, channelName);
   }
 
-  unsubscribe(channelName: string): void {
-    subscriptionMap.delete(this, channelName);
-  }
-
   // sending
   send(message: string): void {
     if (this._ws?.readyState == 1) {
       this._ws.send(message);
+      this.dateLastUsed = new Date();
     } else {
       this.messages.add(message);
     }
