@@ -18,7 +18,7 @@ export class Mailbox implements Subscriber {
 
   get expiryDate() {
     const expiryDate = new Date(this.dateLastChecked);
-    TODO expiryDate.setDate(expiryDate.getDate() + 7);
+    expiryDate.setDate(expiryDate.getDate() + 7);
     return expiryDate;
   }
 
