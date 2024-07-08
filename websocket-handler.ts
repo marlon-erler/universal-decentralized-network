@@ -18,6 +18,10 @@ export interface WebSocketMessage {
   // connecting to server
   requestingServerConnection?: boolean;
 
+  // mailbox
+  requestingMailboxSetup?: boolean;
+  assignedMailboxId?: string;
+
   // subscribing to channel
   subscribeChannel?: string;
   unsubscribeChannel?: string;
