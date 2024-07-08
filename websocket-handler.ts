@@ -24,11 +24,12 @@ export interface WebSocketMessage {
   deletingMailbox?: string;
   assignedMailboxId?: string; // sent by server
   connectedMailboxId?: string; // sent by server
+  deletedMailbox?: string; // sent by server
 
   // subscribing to channel
   subscribeChannel?: string;
   unsubscribeChannel?: string;
-  subscribed?: boolean; // sent by server to confirm subscription
+  subscribed?: boolean; // sent by server
 
   //sending message
   messageChannel?: string;
@@ -195,7 +196,6 @@ export function processMessage(
     const mailbox = mailboxes.get(deletingMailbox);
     if (!mailbox) return;
     removeMailbox(mailbox);
-    ws.close();
   });
 
   // OTHER SERVER
@@ -215,7 +215,7 @@ export function removeExpiredMailboxes() {
 }
 
 export function removeMailbox(mailbox: Mailbox) {
-  subscriptionMap.deleteSubscriber(mailbox);
+  mailbox.delete();
   mailboxes.delete(mailbox.id);
 }
 

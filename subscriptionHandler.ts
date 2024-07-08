@@ -29,20 +29,13 @@ export class Mailbox implements Subscriber {
     return this.expiryDate < today;
   }
 
-  // init
+  // manage
   constructor(ws: WS) {
-    this.ws = ws;
-    this.sendId();
-  }
-
-  sendId(): void {
-    if (!this.ws) return;
-
     sendWebSocketMessage(
       {
         assignedMailboxId: this.id,
       },
-      this.ws
+      ws
     );
   }
 
@@ -55,6 +48,12 @@ export class Mailbox implements Subscriber {
       },
       this.ws
     );
+  }
+
+  delete(): void {
+    subscriptionMap.deleteSubscriber(this);
+    if (!this.ws) return;
+    sendWebSocketMessage({ deletedMailbox: this.id }, this.ws);
   }
 
   // storage

@@ -115,7 +115,6 @@ export function sendMessage() {
 }
 
 export function requestMailbox() {
-  deleteMailbox();
   UDN.requestMailbox();
 }
 
