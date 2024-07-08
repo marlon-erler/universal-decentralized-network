@@ -34,6 +34,7 @@ export const subscriptionMap = new SubscriptionMap();
 export const clientsConnected = new Set<WS>();
 export const serversConnectedAsClient = new Set<WS>();
 export const serversConnected = new Set<WebSocket>();
+export const serversDisconnected = new Set<string>();
 
 export function getServerCount() {
   return serversConnected.size + serversConnectedAsClient.size;
@@ -45,6 +46,8 @@ export function trackConnection(ws: WS) {
 
 export function forgetConnection(ws: WS): void {
   clientsConnected.delete(ws);
+  serversConnectedAsClient.delete(ws);
+
   const channels = subscriptionMap.getChannelList(ws);
   channels?.forEach((channel) => {
     subscriptionMap.delete(ws, channel);
@@ -68,6 +71,12 @@ export function connectServers(config: typeof defaultConfig): void {
   });
 }
 
+export function reconnectServers(config: typeof defaultConfig): void {
+  [...serversDisconnected.values()].forEach((address) => {
+    connectServer(address, config);
+  });
+}
+
 export function connectServer(
   address: string,
   config: typeof defaultConfig
@@ -79,6 +88,8 @@ export function connectServer(
 
     // listen
     ws.addEventListener("open", () => {
+      serversDisconnected.delete(address);
+
       writeSuccess(`connected to server at "${address}".`);
 
       subscribeChannels(ws, config);
@@ -91,6 +102,7 @@ export function connectServer(
 
     ws.addEventListener("close", () => {
       serversConnected.delete(ws);
+      serversDisconnected.add(address);
       writeError(`server at "${address}" disconnected`);
     });
   } catch (error) {
@@ -118,6 +130,7 @@ export function getWebSocketStats(): [string, number][] {
     ["channels", subscriptionMap.clientsPerChannel.size],
     ["clients connected", clientsConnected.size],
     ["servers connected", getServerCount()],
+    ["servers disconnected", serversDisconnected.size],
   ];
 }
 
@@ -129,9 +142,11 @@ export function processMessage(
 ): void {
   // check id
   const messageObject: WebSocketMessage = parseMessage(messageString);
-  if (!messageObject.uuid) { // assign if no id
+  if (!messageObject.uuid) {
+    // assign if no id
     messageObject.uuid = Crypto.randomUUID();
-  } else { // ignore if already seen
+  } else {
+    // ignore if already seen
     if (knownMessageIds.has(messageObject.uuid)) return;
   }
   // remember message

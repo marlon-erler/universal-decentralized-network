@@ -1,6 +1,8 @@
+import { PACKAGE_FILE, STATIC_DIR } from ".";
+
 import Colors from "colors";
 import Fs from "fs/promises";
-import { PACKAGE_FILE } from ".";
+import Path from "path";
 import { WebSocketMessage } from "./websocket-handler";
 
 // CONFIG
@@ -20,6 +22,12 @@ export async function getVersionNumber(): Promise<string> {
   } catch {
     return "unknown";
   }
+}
+
+// SERVER
+export function createFileResponse(requestPath: string): Response {
+  const fullPath = Path.join(STATIC_DIR, requestPath);
+  return new Response(Bun.file(fullPath));
 }
 
 // OUTPUT

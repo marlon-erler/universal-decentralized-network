@@ -5,9 +5,11 @@ import {
   forgetConnection,
   getWebSocketStats,
   processMessage,
+  reconnectServers,
   trackConnection,
 } from "./websocket-handler";
 import {
+  createFileResponse,
   getVersionNumber,
   writeStatNumber,
   writeStatString,
@@ -85,11 +87,6 @@ async function main() {
     })(),
   });
 
-  function createFileResponse(requestPath: string): Response {
-    const fullPath = Path.join(STATIC_DIR, requestPath);
-    return new Response(Bun.file(fullPath));
-  }
-
   // OTHER SERVERS
   connectServers(config);
 
@@ -107,8 +104,6 @@ async function main() {
   }
 
   // CLI
-  writeSuccess(`###\nstarted up ${new Date().toLocaleString()}`);
-
   function updateCLI() {
     console.clear();
 
@@ -128,8 +123,14 @@ async function main() {
     console.log();
   }
 
-  setTimeout(updateCLI, 1000);
-  setInterval(updateCLI, 5000);
+  // LOOP
+  setInterval(() => {
+    updateCLI();
+    reconnectServers(config);
+  }, 5000);
+
+  // FINISH
+  writeSuccess(`###\nstarted up ${new Date().toLocaleString()}`);
 }
 
 main();
