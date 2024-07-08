@@ -145,7 +145,7 @@ Anyone can develop apps for the UDN project. Examples of such apps are listed be
 
 | App Name | Description | Links |
 | -- | -- | -- |
-| Broadcast | Simple broadcast-based messenger for UDN | [view code](https://github.com/marlonerler/udn-broadcast/ - [get](https://udn-broadcast.onrender.com/)
+| Broadcast | Simple broadcast-based messenger for UDN | [view code](https://github.com/marlonerler/udn-broadcast/) - [get](https://udn-broadcast.onrender.com/)
 
 ---
 
