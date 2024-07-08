@@ -11,6 +11,7 @@ The UDN project aims to provide decentralized and localhost-able infrastructure 
 - [User's guide](#users-guide)
   - [Getting Connected](#getting-connected)
   - [Using Apps](#using-apps)
+  - [Getting Apps](#getting-apps)
 - [Administrator's Guide](#administrators-guide)
   - [Getting Started](#getting-started)
   - [Configuration](#configuration)
@@ -142,9 +143,9 @@ As you can see, there are many ways to connect multiple servers and communicate 
 
 Anyone can develop apps for the UDN project. Examples of such apps are listed below. If you have developed an app for the UDN project and you want your app to be listed here, create an issue.
 
-| App Name | Description | Link |
+| App Name | Description | Links |
 | -- | -- | -- |
-| Broadcast | Simple broadcast-based messenger for UDN | [https://udn-broadcast.onrender.com](https://udn-broadcast.onrender.com/)
+| Broadcast | Simple broadcast-based messenger for UDN | [view code](https://github.com/marlonerler/udn-broadcast/ - [get](https://udn-broadcast.onrender.com/)
 
 ---
 
