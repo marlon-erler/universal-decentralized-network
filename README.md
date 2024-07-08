@@ -33,6 +33,23 @@ This is particularly useful in larger networks. Let's suppose Josh, Alice, Bob, 
 3. Start the server with `bun run start`.
 4. A configuration file will be created automatically.
 
+# TLS
+
+To use TLS, provide a `cert.pem` and `key.pem` file in the server directory (the directory from where you run `bun run start`).
+If your certificate is encrypted, provide the password via the `TLS_PASSPHRASE` environment variable.
+
+## Why use TLS?
+
+UDN apps require a TLS connection to enable features like offline support and encryption. If an app is obtained via TLS, it will refuse to connect to insecure WebSocket servers, including local ones. If you want your server to work with these apps, your server must use TLS.
+
+## Self-Signed Certificates
+
+1. In local networks, you need co create a self-signed certificate with `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365`. This command will ask you a few questions and create the files required by your server.
+2. Users need to open the server's interface in their browser and manually trust the connection (advanced > visit anyway). This should allow the apps to run in the browser.
+3. For apps installed as standalone, there are multiple options:
+  - iPhone: install the server interface to the home screen, open, and trust again
+  - Other: trust the certificate on system level
+
 # UDN Apps
 
 - [Broadcast](https://github.com/marlon-erler/udn-broadcast): A basic channel-based messenger with encryption
@@ -55,7 +72,7 @@ The port and channels are self-explanatory. For servers, you'll need to provide 
 {
   "port": 3000,
   "connectedServers": [
-    "ws://192.168.0.100:3000", 
+    "ws://192.168.0.100:3000",
     "ws://192.168.0.200:3000"
   ],
   "subscribedChannels": [
@@ -84,6 +101,7 @@ Both of these projects are very minimal, bloat-free, and quick to get started wi
 The UDN is based on WebSockets, so you'd start by opening a WebSocket connection to a server. The only two types of messages you need to send are subscriptions and actual messages.
 
 The possible properties of a message you need to know are:
+
 ```TypeScript
 export interface WebSocketMessage {
   // subscribing to channel
@@ -97,6 +115,7 @@ export interface WebSocketMessage {
 ```
 
 So, to send a message:
+
 1. Create an empty object
 2. Add the properties you want to send
 3. Stringify the object
