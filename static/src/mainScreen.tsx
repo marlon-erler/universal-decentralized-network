@@ -45,7 +45,7 @@ export function MainScreen() {
           </button>
           <button class="primary width-50" on:click={subscribe}>
             {getText("subscribe")}
-            <span class="icon">arrow_forward</span>
+            <span class="icon">check</span>
           </button>
         </div>
 
@@ -80,7 +80,7 @@ export function MainScreen() {
             toggle:disabled={isMessageEmpty}
           >
             {getText("send")}
-            <span class="icon">arrow_forward</span>
+            <span class="icon">send</span>
           </button>
         </div>
       </div>
