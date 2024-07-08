@@ -8,7 +8,14 @@ export interface Subscriber {
 export class Mailbox implements Subscriber {
   // basic
   id = Crypto.randomUUID();
+  dateLastChecked = new Date();
   messages = new Set<string>();
+
+  get expiryDate() {
+    const expiryDate = new Date(this.dateLastChecked);
+    expiryDate.setDate(expiryDate.getDate() + 7);
+    return expiryDate;
+  }
 
   // websocket
   _ws: WS | undefined;
