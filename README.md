@@ -20,14 +20,14 @@ Subscriptions and messages are handled by a server:
 
 ```md
 **Josh** --(subscribe to "my-channel")-> **Server**
-**Josh** <-(subscription confirmed   )-- **Server**
+**Josh** <-(subscription confirmed )-- **Server**
 
-**Bob**  --(subscribe to "my-channel")-> **Server**
-**Bob**  <-(subscription confirmed   )-- **Server**
+**Bob** --(subscribe to "my-channel")-> **Server**
+**Bob** <-(subscription confirmed )-- **Server**
 
-**Josh** --("hello" on "my-channel"  )-> **Server**
-**Josh** <-("hello" on "my-channel"  )-- **Server**
-**Bob**  <-("hello" on "my-channel"  )-- **Server**
+**Josh** --("hello" on "my-channel" )-> **Server**
+**Josh** <-("hello" on "my-channel" )-- **Server**
+**Bob** <-("hello" on "my-channel" )-- **Server**
 ```
 
 ## Scalability
@@ -57,36 +57,36 @@ Then, John will send his messages on both "s1-and-s2" and "car-warranty". As alw
 # John and Bob subscribe:
 
 **John** --(subscribe to "car-warranty")-> **S1**
-**John** <-(subscription confirmed     )-- **S1**
+**John** <-(subscription confirmed )-- **S1**
 
-**Bob**  --(subscribe to "car-warranty")-> **S2**
-**Bob**  <-(subscription confirmed     )-- **S2**
+**Bob** --(subscribe to "car-warranty")-> **S2**
+**Bob** <-(subscription confirmed )-- **S2**
 
 ---
 
 # The servers subscribe:
 
-**S1**   --(subscribe to "s1-and-s2"   )-> **S2**
-**S2**   --(subscribe to "s1-and-s2"   )-> **S1**
+**S1** --(subscribe to "s1-and-s2" )-> **S2**
+**S2** --(subscribe to "s1-and-s2" )-> **S1**
 
 ---
 
 # Sending the Message:
 
 John sends the message to his server
-**John** --("hello" on:                )-> **S1**
-           ( - "s1-and-s2"             )
-           ( - "car-warranty"          )
+**John** --("hello" on: )-> **S1**
+( - "s1-and-s2" )
+( - "car-warranty" )
 
 S2 subscribed to "s1-and-s2", so S1 sends this message to S2
-**S1**   --("hello" on:                )-> **S2**
-           ( - "s1-and-s2"             )
-           ( - "car-warranty"          )
+**S1** --("hello" on: )-> **S2**
+( - "s1-and-s2" )
+( - "car-warranty" )
 
 Bob subscribed to "car-warranty", so S2 sends this message to Bob
-**S2**   --("hello" on:                )-> **Bob**
-           ( - "s1-and-s2"             )
-           ( - "car-warranty"          )
+**S2** --("hello" on: )-> **Bob**
+( - "s1-and-s2" )
+( - "car-warranty" )
 ```
 
 This requires John to know of "s1-and-s2" and, obviously, Bob to subscribe to "car-warranty". Jane and Alice could agree on their own primary channel and use "s1-and-s2" just like John did.
@@ -100,7 +100,7 @@ As you can see, there are many ways to connect multiple servers and communicate 
 ## Getting Connected
 
 1. **Your administrator will give you a server address**. This address will likely look like `http://192.168.0.69` or `https://192.168.0.69`.
-2. Make sure your device is **connected to the right Wi-Fi network** 
+2. Make sure your device is **connected to the right Wi-Fi network**
 3. Access the server by **opening the address in a web browser**
 4. If the address starts with `https://` you may be warned that the connection is "insecure" or "not private". This is because the server is hosted locally and thus cannot be verified by a third party. Given that your server is running on a local network and not accessible via the internet, you can **ignore the risk and proceed to load the site**.
 5. If you are using a smartphone, **add the site to your homescreen**, launch it, and **repeat step 3**. If you skip this, apps may refuse to connect to your server.
@@ -112,11 +112,12 @@ As you can see, there are many ways to connect multiple servers and communicate 
 2. To use an app, **open it in your web browser**. Most apps will install offline support automatically so you can use them on local networks without an internet connection.
 3. If you are using a smartphone, **add the app to your homescreen and launch it**.
 4. Enter your server address when asked, but note:
-  - `http://` or `https://` (the secure variant) are protocols to request data and receive a single response
-  - To send messages, apps use so-called WebSockets instead. Their protocol is `ws://` or `wss://` (the secure variant)
-  - You will need to **replace `http` with `ws`**:
-    - `http://192.168.0.100:3000` -> `ws://192.168.0.100:3000`
-    - `https://192.168.0.200:3000` -> `wss://192.168.0.200:3000`
+
+- `http://` or `https://` (the secure variant) are protocols to request data and receive a single response
+- To send messages, apps use so-called WebSockets instead. Their protocol is `ws://` or `wss://` (the secure variant)
+- You will need to **replace `http` with `ws`**:
+  - `http://192.168.0.100:3000` -> `ws://192.168.0.100:3000`
+  - `https://192.168.0.200:3000` -> `wss://192.168.0.200:3000`
 
 ---
 
@@ -154,7 +155,8 @@ The port and channels are self-explanatory. For servers, you'll need to provide 
     "wss://192.168.0.200:3000"
   ],
   "subscribedChannels": [
-    "blue", "purple"
+    "secondary-channel-1",
+    "secondary-channel-2"
   ]
 }
 ```
