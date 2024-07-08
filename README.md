@@ -119,9 +119,9 @@ As you can see, there are many ways to connect multiple servers and communicate 
 ## Getting Connected
 
 1. **Your administrator will give you a server address**. This address will likely look like `http://192.168.0.69` or `https://192.168.0.69`.
-2. Make sure your device is **connected to the right Wi-Fi network**
-3. Access the server by **opening the address in a web browser**
-4. If the address starts with `https://` you may be warned that the connection is "insecure" or "not private". This is because the server is hosted locally and thus cannot be verified by a third party. Given that your server is running on a local network and not accessible via the internet, you can **ignore the risk and proceed to load the site**.
+2. Make sure your device is **connected to the right Wi-Fi network**.
+3. Access the server by **opening the address in a web browser**.
+4. If the address starts with `https://` you may be warned that the connection is "insecure" or "not private". This is because your administrator created and signed the server's certificate locally, and because the certificate is not registered with an official certification authority. As long as you are connecting to the server through your local network, you can safely **ignore the risk and proceed to load the site**.
 5. If you are using a smartphone, **add the site to your homescreen**, launch it, and **repeat step 3**. If you skip this, apps may refuse to connect to your server.
 6. If you are on a computer, consider trusting the server's certificate on system level if you want to install apps as PWA. This processes varies based on your operating system, please google how to do this on your system.
 
