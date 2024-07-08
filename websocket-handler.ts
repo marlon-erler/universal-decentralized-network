@@ -144,6 +144,7 @@ export function processMessage(
   messageString: string,
   config: typeof defaultConfig
 ): void {
+  // MESSAGE ID
   // check id
   const messageObject: WebSocketMessage = parseMessage(messageString);
   if (!messageObject.uuid) {
@@ -156,7 +157,7 @@ export function processMessage(
   // remember message
   knownMessageIds.add(messageObject.uuid);
 
-  // subscriptions
+  // SUBSCRIPTIONS
   doIfIsString(messageObject.subscribeChannel, (subscribeChannel) => {
     trackSubscription(ws, subscribeChannel);
   });
@@ -164,13 +165,13 @@ export function processMessage(
     forgetSubscription(ws, unsubscribeChannel);
   });
 
-  // message
+  // MESSAGE
   doIfIsString(messageObject.messageChannel, (messageChannel) => {
     if (messageObject.messageBody == undefined) return;
     sendMessage(messageChannel, messageObject.messageBody, messageObject.uuid!);
   });
 
-  // other server
+  // OTHER SERVER
   if (messageObject.requestingServerConnection == true) {
     clientsConnected.delete(ws);
     serversConnectedAsClient.add(ws);
