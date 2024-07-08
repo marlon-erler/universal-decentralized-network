@@ -1,7 +1,44 @@
+import Crypto from "crypto";
 import { WS } from "./index";
 
 export interface Subscriber {
   send: (message: string) => void;
+}
+
+export class Mailbox implements Subscriber {
+  // basic
+  id = Crypto.randomUUID();
+  messages = new Set<string>();
+
+  // websocket
+  _ws: WS | undefined;
+
+  get ws(): WS | undefined {
+    return this._ws;
+  }
+
+  set ws(ws: WS) {
+    this._ws = ws;
+    this.sendUnreadMessages();
+  }
+
+  // sending
+  send(message) {
+    if (this._ws) {
+      this._ws.send(message);
+    } else {
+      this.messages.add(message);
+    }
+  }
+
+  sendUnreadMessages() {
+    this.messages.forEach((message) => {
+      if (!this._ws) return;
+
+      this._ws.send(message);
+      this.messages.delete(message);
+    });
+  }
 }
 
 export class SubscriptionMap {

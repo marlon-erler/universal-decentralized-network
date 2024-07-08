@@ -1,7 +1,4 @@
-import {
-  Subscriber,
-  SubscriptionMap,
-} from "./subscriptionHandler";
+import { Subscriber, SubscriptionMap } from "./subscriptionHandler";
 import {
   doIfIsString,
   parseMessage,
@@ -23,11 +20,13 @@ export interface WebSocketMessage {
 
   // mailbox
   requestingMailboxSetup?: boolean;
-  assignedMailboxId?: string;
+  assignedMailboxId?: string; // sent by server
+  requestedMailbox?: string;
 
   // subscribing to channel
   subscribeChannel?: string;
   unsubscribeChannel?: string;
+  subscribed?: string; // sent by server to confirm subscription
 
   //sending message
   messageChannel?: string;
@@ -216,7 +215,7 @@ function confirmSubscription(
   subscriber: Subscriber,
   messageChannel: string
 ): void {
-  const messageObject = {
+  const messageObject: WebSocketMessage = {
     messageChannel,
     subscribed: subscriptionMap.getChannelList(subscriber)?.has(messageChannel)
       ? true
