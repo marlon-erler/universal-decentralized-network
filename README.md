@@ -2,6 +2,25 @@
 
 The UDN project aims to provide decentralized and localhost-able infrastructure for messaging and communication.
 
+# Contents
+
+- [How it works](#how-it-works)
+  - [Channels](#channels)
+  - [Scalability](#scalability)
+  - [Example](#example)
+- [User's guide](#users-guide)
+  - [Getting Connected](#getting-connected)
+  - [Using Apps](#using-apps)
+- [Administrator's Guide](#administrators-guide)
+  - [Getting Started](#getting-started)
+  - [Configuration](#configuration)
+  - [TLS](#tls)
+  - [Connecting multiple servers](#connecting-multiple-servers)
+- [App Developer's Guide](#app-developers-guide)
+  - [Guidelines](#guidelines)
+  - [The Recommended Way](#the-recommended-way)
+  - [The Manual Way](#the-manual-way)
+
 # How it works
 
 ## Introduction
@@ -202,7 +221,7 @@ As explained in the _How it works_ section, you may want to use multiple servers
 - Subscribe only to the primary channel, send on the primary and all secondary channels.
 - Make sure to label these channels as primary and secondary (you may translate these along with the rest of your app) as users are instructed on these terms.
 
-## The recommended way
+## The Recommended Way
 
 **Base**
 For TypeScript-based projects, you can use the [udn-frontend](https://github.com/marlon-erler/udn-frontend) package to manage the connection. This project provides methods for connecting/disconnecting, subscribing/unsubscribing, and sending messages. If you want to/need to implement this yourself, follow the manual instructions.
@@ -217,7 +236,7 @@ Both of these projects are very minimal, bloat-free, and quick to get started wi
 4. Generate your app icon [here](https://icongen.onrender.com/), move it to the `dist` directory
 5. Start developing
 
-## The manual way
+## The Manual Way
 
 UDN is based on WebSockets sending JSON strings.
 
