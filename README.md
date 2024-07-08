@@ -26,7 +26,7 @@ The UDN project aims to provide decentralized and localhost-able infrastructure 
 
 ## Introduction
 
-Let's assume you want to set up a local network at home. Using this local network, you want to chat with family members. This has two advantages: nothing is sent out to the internet, so no company can observe your messages; and your communication continues to function even if the internet is unavailable. All you need is a local Wi-Fi network and a so-called server. You can set up any computer on your house as a server.
+Let's assume you want to set up a local network at home. Using this local network, you want to chat with family members. This has two advantages: nothing is sent out to the internet, so no company can observe your messages; and your communication continues to function even if the internet is unavailable. All you need is a local Wi-Fi network and a so-called server. You can set up any computer in your house as a server.
 
 Remember that the UDN project provides infrastructure and is utilized by separate apps. While your server does provide basic messaging, these messages are not encrypted and only intended for maintenance purposes. You can find a list of apps in the User's Guide below.
 
@@ -61,14 +61,16 @@ It would be highly impractical to make every server subscribe to every primary c
 ## Example
 
 **Scenario**
-John and Alice have set up their own UDN server, called S1. Their neighbors, Jane and Bob did the same, we'll call their server S2. In this scenario, John can chat with Alice, and Jane can chat with Bob. But what if John wants reach Bob about his car's extended warranty? To achieve this, we need to first connect S1 and S2.
+John and Alice have set up their own UDN server, called S1. Their neighbors, Jane and Bob, did the same, we'll call their server S2. In this scenario, John can chat with Alice, and Jane can chat with Bob. But what if John wants reach Bob about his car's extended warranty? To achieve this, we need to first connect S1 and S2.
 
 **The bad way**
+
 We could simply tell John, Bob, S1, and S2 to subscribe to "car-warranty", a primary channel (it describes the topic of the chat). What if Alice and Jane want to chat as well? In this setup, they'd have to use the "car-warranty" channel too, because anything else will not be sent to the other server. But that would interrupt John's highly important business. Also, Alice and Jane don't care about Bob's car, so they should create their own primary channel describing their conversation anyway.
 
 They would then have to reconfigure S1 and S2 to also subscribe to this new primary channel, restart the servers to load the new config, and then start messaging. That would be a lot of effort, and it would have to be repeated for every new topic.
 
 **The good way**
+
 As said previously, a message can be sent on multiple channels. One of them is the primary channel describing the topic of the chat, every other channel is called secondary. Instead of adding primary channels to our server configs, we'll decide on a secondary channel, for example "s1-and-s2". This needs to be set up only once.
 
 Then, John will send his messages on both "s1-and-s2" and "car-warranty". As always, his server will forward this message to every device subscribing to either of the channels. So the transfer would look like:
