@@ -2,6 +2,7 @@ export interface Message {
   // subscribing to channel
   subscribeChannel?: string;
   unsubscribeChannel?: string;
+  subscribed?: boolean; // sent by the server to confirm subscription
 
   //sending message
   messageChannel?: string;
