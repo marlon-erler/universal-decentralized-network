@@ -1,6 +1,6 @@
 # universal-decentralized-network
 
-The UDN project aims to provide decentralized and localhost-able infrastructure for messaging and communication.
+The UDN project aims to provide decentralized and localhost-able infrastructure for messaging and communication. This infrastructure can be utilized in any scenario where data needs to be sent between devices, especially when no internet connection is present.
 
 # Contents
 
@@ -130,13 +130,21 @@ As you can see, there are many ways to connect multiple servers and communicate 
 1. Apps are likely hosted as websites on the internet or your local network. If this is not the case, follow instructions given by the developers or your administrator.
 2. To use an app, **open it in your web browser**. Most apps will install offline support automatically so you can use them on local networks without an internet connection.
 3. If you are using a smartphone, **add the app to your homescreen and launch it**.
-4. Enter your server address when asked, but note:
+4. If the app requests your server address, consider:
 
 - `http://` or `https://` (the secure variant) are protocols to request data and receive a single response
 - To send messages, apps use so-called WebSockets instead. Their protocol is `ws://` or `wss://` (the secure variant)
 - You will need to **replace `http` with `ws`**:
   - `http://192.168.0.100:3000` -> `ws://192.168.0.100:3000`
   - `https://192.168.0.200:3000` -> `wss://192.168.0.200:3000`
+
+## Getting Apps
+
+Anyone can develop apps for the UDN project. Examples of such apps are listed below. If you have developed an app for the UDN project and you want your app to be listed here, create an issue.
+
+| App Name | Description | Link |
+| -- | -- | -- |
+| Broadcast | Simple broadcast-based messenger for UDN | [https://udn-broadcast.onrender.com](https://udn-broadcast.onrender.com/)
 
 ---
 
