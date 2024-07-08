@@ -131,7 +131,7 @@ As you can see, there are many ways to connect multiple servers and communicate 
 1. Apps are likely hosted as websites on the internet or your local network. If this is not the case, follow instructions given by the developers or your administrator.
 2. To use an app, **open it in your web browser**. Most apps will install offline support automatically so you can use them on local networks without an internet connection.
 3. If you are using a smartphone, **add the app to your homescreen and launch it**.
-4. If you are using a computer, you can **install the app as PWA**, you can find this option in the share sheet or browser menu. Please google how to do this in your specific browser.
+4. If you are using a computer, you can **install the app as PWA** (this option may be called "Add to Dock" or "Create Shortcut"). Please google how to do this in your specific browser.
 5. If the app requests your server address, note that:
 
 - `http://` or `https://` (the secure variant) are protocols to request data and receive a single response
