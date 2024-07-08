@@ -49,21 +49,17 @@
   var v4_default = v4;
 
   // node_modules/bloatless-react/index.ts
-  var UUID = class {
-    value;
-    constructor() {
-      this.value = v4_default();
-    }
-    toString() {
-      return this.value;
-    }
-  };
+  function UUID() {
+    return v4_default();
+  }
   var State = class {
     _value;
     _bindings = /* @__PURE__ */ new Set();
+    // init
     constructor(initialValue) {
       this._value = initialValue;
     }
+    // value
     get value() {
       return this._value;
     }
@@ -72,6 +68,7 @@
       this._value = newValue;
       this.callSubscriptions();
     }
+    // subscriptions
     callSubscriptions() {
       this._bindings.forEach((fn) => fn(this._value));
     }
@@ -79,33 +76,52 @@
       this._bindings.add(fn);
       fn(this._value);
     }
+    // stringify
+    toString() {
+      return JSON.stringify(this._value);
+    }
   };
   var ListState = class extends State {
     additionHandlers = /* @__PURE__ */ new Set();
     removalHandlers = /* @__PURE__ */ new Map();
-    constructor() {
-      super(/* @__PURE__ */ new Set());
+    // init
+    constructor(initialItems) {
+      super(new Set(initialItems));
     }
+    // list
     add(...items) {
       items.forEach((item) => {
         this.value.add(item);
         this.additionHandlers.forEach((handler) => handler(item));
       });
+      this.callSubscriptions();
     }
     remove(...items) {
       items.forEach((item) => {
         this.value.delete(item);
-        const uuid = item.uuid;
-        if (!this.removalHandlers.has(uuid)) return;
-        this.removalHandlers.get(uuid)(item);
-        this.removalHandlers.delete(uuid);
+        const id = item.id;
+        if (!this.removalHandlers.has(id)) return;
+        this.removalHandlers.get(id)(item);
+        this.removalHandlers.delete(id);
       });
+      this.callSubscriptions();
     }
+    clear() {
+      this.remove(...this.value.values());
+    }
+    // handlers
     handleAddition(handler) {
       this.additionHandlers.add(handler);
+      [...this.value.values()].forEach(handler);
     }
     handleRemoval(item, handler) {
-      this.removalHandlers.set(item.uuid, handler);
+      this.removalHandlers.set(item.id, handler);
+    }
+    // stringification
+    toString() {
+      const array = [...this.value];
+      const json = JSON.stringify(array);
+      return json;
     }
   };
   function createProxyState(statesToSubscibe, fn) {
@@ -139,15 +155,21 @@
           }
           case "subscribe": {
             if (directiveValue == "children") {
-              const [listState, toElement] = value;
-              listState.handleAddition((newItem) => {
-                const child = toElement(newItem, listState);
-                listState.handleRemoval(
-                  newItem,
-                  () => child.remove()
-                );
-                element.append(child);
-              });
+              element.style.scrollBehavior = "smooth";
+              try {
+                const [listState, toElement] = value;
+                listState.handleAddition((newItem) => {
+                  const child = toElement(newItem, listState);
+                  listState.handleRemoval(
+                    newItem,
+                    () => child.remove()
+                  );
+                  element.append(child);
+                  child.scrollIntoView();
+                });
+              } catch {
+                throw `error: cannot process subscribe:children directive because ListItemConverter is not defined. Usage: "subscribe:children={[list, converter]}"; you can find a more detailed example in the documentation`;
+              }
             } else {
               const state = value;
               state.subscribe(
@@ -168,9 +190,20 @@
             break;
           }
           case "toggle": {
+            if (value.subscribe) {
+              const state = value;
+              state.subscribe(
+                (newValue) => element.toggleAttribute(directiveValue, newValue)
+              );
+            } else {
+              element.toggleAttribute(directiveValue, value);
+            }
+            break;
+          }
+          case "set": {
             const state = value;
             state.subscribe(
-              (newValue) => element.toggleAttribute(directiveValue, newValue)
+              (newValue) => element.setAttribute(directiveValue, newValue)
             );
             break;
           }
@@ -182,7 +215,7 @@
     return element;
   }
 
-  // ../node_modules/udn-frontend/index.ts
+  // node_modules/udn-frontend/index.ts
   var UDNFrontend = class {
     ws;
     // handlers
@@ -267,7 +300,7 @@
     es: {
       channel: "Canal",
       channel_placeholder: "mi-canal",
-      disconnected: "Sin conneci\xF3n",
+      disconnected: "Sin coneci\xF3n",
       reconnecting: "Conectando...",
       info: "Info",
       message: "Mensaje",
@@ -415,7 +448,7 @@
         "toggle:disabled": isMessageEmpty
       },
       getText("send"),
-      /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward")
+      /* @__PURE__ */ createElement("span", { class: "icon" }, "send")
     ))));
   }
 

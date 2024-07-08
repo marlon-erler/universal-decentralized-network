@@ -45,7 +45,7 @@ export function MainScreen() {
           </button>
           <button class="primary width-50" on:click={subscribe}>
             {getText("subscribe")}
-            <span class="icon">check</span>
+            <span class="icon">arrow_forward</span>
           </button>
         </div>
 
