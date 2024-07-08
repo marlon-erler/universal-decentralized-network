@@ -123,7 +123,7 @@ As you can see, there are many ways to connect multiple servers and communicate 
 3. Access the server by **opening the address in a web browser**.
 4. If the address starts with `https://` you may be warned that the connection is "insecure" or "not private". This is because your administrator created and signed the server's certificate locally, and because the certificate is not registered with an official certification authority. As long as you are connecting to the server through your local network, you can safely **ignore the risk and proceed to load the site**.
 5. If you are using a smartphone, **add the site to your homescreen** (you can find this option in the share sheet or site menu), launch it, and **repeat step 3**. If you skip this, apps may refuse to connect to your server.
-6. If you are on a computer, consider trusting the server's certificate on system level if you want to install apps as PWA. This processes varies based on your operating system, please google how to do this on your system.
+6. If you are on a computer, consider trusting the server's certificate on system level if you want to install apps as PWA. This process varies based on your operating system, please google how to do this on your system.
 
 ## Using Apps
 
