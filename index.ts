@@ -11,6 +11,7 @@ import {
 import {
   createFileResponse,
   getVersionNumber,
+  writeError,
   writeStatNumber,
   writeStatString,
   writeSuccess,
@@ -59,13 +60,25 @@ async function main() {
 
     websocket: {
       open(ws) {
-        trackConnection(ws);
+        try {
+          trackConnection(ws);
+        } catch (error) {
+          writeError(error);
+        }
       },
       message(ws, message) {
-        processMessage(ws, message.toString(), config);
+        try {
+          processMessage(ws, message.toString(), config);
+        } catch (error) {
+          writeError(error);
+        }
       },
       close(ws) {
-        forgetConnection(ws);
+        try {
+          forgetConnection(ws);
+        } catch (error) {
+          writeError(error);
+        }
       },
     },
 
