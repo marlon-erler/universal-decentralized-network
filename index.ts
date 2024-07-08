@@ -6,6 +6,7 @@ import {
   getWebSocketStats,
   processMessage,
   reconnectServers,
+  removeExpiredMailboxes,
   trackConnection,
 } from "./websocket-handler";
 import {
@@ -138,8 +139,11 @@ async function main() {
 
   // LOOP
   setInterval(() => {
-    updateCLI();
-    reconnectServers(config);
+    if (process.env.DEV != "1") {
+      updateCLI();
+      reconnectServers(config);
+    }
+    removeExpiredMailboxes();
   }, 2000);
 
   // FINISH

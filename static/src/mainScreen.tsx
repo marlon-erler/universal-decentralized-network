@@ -3,8 +3,10 @@ import * as React from "bloatless-react";
 import {
   isMessageEmpty,
   lastReceivedMessage,
+  mailboxId,
   newMessageBody,
   newMessageChannel,
+  requestMailbox,
   sendMessage,
   subscribe,
   subscriptionChannel,
@@ -24,6 +26,22 @@ export function MainScreen() {
             <b>{getText("messageLastReceived")}</b>
             <p class="secondary" subscribe:innerText={lastReceivedMessage}></p>
           </div>
+        </div>
+
+        <hr></hr>
+
+        <div class="tile width-input">
+          <div>
+            <b>{getText("mailbox")}</b>
+            <p class="secondary" subscribe:innerText={mailboxId}></p>
+          </div>
+        </div>
+
+        <div class="flex-row width-input justify-end">
+          <button class="primary width-100" on:click={requestMailbox}>
+            {getText("requestMailbox")}
+            <span class="icon">inbox</span>
+          </button>
         </div>
 
         <hr></hr>

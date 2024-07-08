@@ -1,9 +1,14 @@
-import { PACKAGE_FILE, STATIC_DIR } from ".";
+import { Mailbox, Subscriber } from "./subscriptionHandler";
+import { PACKAGE_FILE, STATIC_DIR, WS } from ".";
+import {
+  WebSocketMessage,
+  mailboxIdsPerClient,
+  mailboxes,
+} from "./websocket-handler";
 
 import Colors from "colors";
 import Fs from "fs/promises";
 import Path from "path";
-import { WebSocketMessage } from "./websocket-handler";
 
 // CONFIG
 const STAT_INDENT = 25;
@@ -64,4 +69,15 @@ export function stringifyMessage(messageObject: WebSocketMessage): string {
 
 export function parseMessage(messageString: string): Object {
   return JSON.parse(messageString);
+}
+
+// SUBSCRIBERS
+export function getMailboxIfExists(ws: WS): Mailbox | undefined {
+  const id = mailboxIdsPerClient.get(ws);
+  if (!id) return;
+  return mailboxes.get(id);
+}
+
+export function getMostAppropriateSubscriber(ws: WS): Subscriber {
+  return getMailboxIfExists(ws) ?? ws;
 }

@@ -4,7 +4,7 @@ import UDNFrontend from "udn-frontend";
 import { getText } from "./translations";
 
 export class Message implements React.Identifiable {
-  uuid = new React.UUID();
+  id = React.UUID();
 
   constructor(public channel: string, public body: string) {}
 }
@@ -15,6 +15,9 @@ const UDN = new UDNFrontend();
 UDN.onconnect = () => {
   isDisconnected.value = false;
   updateStats();
+  if (mailboxId.value != "") {
+    UDN.accessMailbox(mailboxId.value);
+  }
 };
 
 UDN.onmessage = (data) => {
@@ -25,6 +28,10 @@ UDN.onmessage = (data) => {
     const messageObject = new Message(messageChannel, messageBody);
     if (messageBody) messages.add(messageObject);
   }
+};
+
+UDN.onmailbox = (id) => {
+  mailboxId.value = id;
 };
 
 UDN.ondisconnect = () => {
@@ -40,6 +47,7 @@ connect();
 // STATE
 // connection
 export const isDisconnected = new React.State(true);
+export const mailboxId = React.restoreState("mailbox-id", "");
 
 // messages
 export const messages = new React.ListState<Message>();
@@ -92,4 +100,8 @@ export function sendMessage() {
   if (isMessageEmpty.value == true) return;
   UDN.sendMessage(newMessageChannel.value, newMessageBody.value);
   newMessageBody.value = "";
+}
+
+export function requestMailbox() {
+  UDN.requestMailbox();
 }

@@ -1,6 +1,8 @@
-import { Subscriber, SubscriptionMap } from "./subscriptionHandler";
+import { Mailbox, Subscriber, SubscriptionMap } from "./subscriptionHandler";
 import {
   doIfIsString,
+  getMailboxIfExists,
+  getMostAppropriateSubscriber,
   parseMessage,
   stringifyMessage,
   writeError,
@@ -39,6 +41,8 @@ const knownMessageIds = new Set<string>();
 export const subscriptionMap = new SubscriptionMap();
 
 export const clientsConnected = new Set<WS>();
+export const mailboxes = new Map<string, Mailbox>();
+export const mailboxIdsPerClient = new Map<WS, string>();
 
 export const serversConnectedAsClient = new Set<WS>();
 export const serversConnected = new Set<WebSocket>();
@@ -55,11 +59,7 @@ export function trackConnection(ws: WS) {
 export function forgetConnection(ws: WS): void {
   clientsConnected.delete(ws);
   serversConnectedAsClient.delete(ws);
-
-  const channels = subscriptionMap.getChannelList(ws);
-  channels?.forEach((channel) => {
-    subscriptionMap.delete(ws, channel);
-  });
+  subscriptionMap.deleteSubscriber(ws);
 }
 
 export function trackSubscription(
@@ -76,6 +76,17 @@ export function forgetSubscription(
 ): void {
   subscriptionMap.delete(subscriber, channel);
   confirmSubscription(subscriber, channel);
+}
+
+// AUDIT
+export function getWebSocketStats(): [string, number][] {
+  return [
+    ["channels", subscriptionMap.subscribersPerChannel.size],
+    ["clients connected", clientsConnected.size],
+    ["mailboxes", mailboxes.size],
+    ["servers connected", getServerCount()],
+    ["servers disconnected", serversDisconnected.size],
+  ];
 }
 
 // OTHER SERVERS
@@ -138,16 +149,6 @@ export function subscribeChannel(server: WS, channel: string): void {
   server.send(messageString);
 }
 
-// AUDIT
-export function getWebSocketStats(): [string, number][] {
-  return [
-    ["channels", subscriptionMap.subscribersPerChannel.size],
-    ["clients connected", clientsConnected.size],
-    ["servers connected", getServerCount()],
-    ["servers disconnected", serversDisconnected.size],
-  ];
-}
-
 // PROCESS MESSAGE
 export function processMessage(
   ws: WS,
@@ -169,16 +170,27 @@ export function processMessage(
 
   // SUBSCRIPTIONS
   doIfIsString(messageObject.subscribeChannel, (subscribeChannel) => {
-    trackSubscription(ws, subscribeChannel);
+    trackSubscription(getMostAppropriateSubscriber(ws), subscribeChannel);
   });
   doIfIsString(messageObject.unsubscribeChannel, (unsubscribeChannel) => {
-    forgetSubscription(ws, unsubscribeChannel);
+    forgetSubscription(getMostAppropriateSubscriber(ws), unsubscribeChannel);
   });
 
   // MESSAGE
   doIfIsString(messageObject.messageChannel, (messageChannel) => {
     if (messageObject.messageBody == undefined) return;
     sendMessage(messageChannel, messageObject.messageBody, messageObject.uuid!);
+  });
+
+  // MAILBOX
+  if (messageObject.requestingMailboxSetup == true) {
+    const mailbox = new Mailbox(ws);
+    mailboxes.set(mailbox.id, mailbox);
+  }
+  doIfIsString(messageObject.requestedMailbox, (requestedMailbox) => {
+    const mailbox = mailboxes.get(requestedMailbox);
+    if (!mailbox) return;
+    mailbox.ws = ws;
   });
 
   // OTHER SERVER
@@ -189,18 +201,40 @@ export function processMessage(
   }
 }
 
+// MAILBOX
+export function removeExpiredMailboxes() {
+  const today = new Date();
+  mailboxes.forEach((mailbox) => {
+    if (mailbox.expiryDate > today) return;
+    removeMailbox(mailbox);
+  });
+}
+
+export function removeMailbox(mailbox: Mailbox) {
+  subscriptionMap.deleteSubscriber(mailbox);
+  mailboxes.delete(mailbox.id);
+}
+
 // MESSAGING
+export function sendWebSocketMessage(
+  messageObject: WebSocketMessage,
+  destination: Subscriber
+): void {
+  const messageString = JSON.stringify(messageObject);
+  destination.send(messageString);
+}
+
 export function sendMessage(
   messageChannel: string,
   messageBody: string,
   uuid: string
 ): void {
   const channels = messageChannel.split("/");
-
-  const messageObject = { uuid, messageChannel, messageBody };
-  const messageString = stringifyMessage(messageObject);
-
-  subscriptionMap.forwardMessage(channels, messageString);
+  subscriptionMap.forwardMessage(channels, {
+    uuid,
+    messageChannel,
+    messageBody,
+  });
 }
 
 function requestServerConnection(ws: WS): void {
