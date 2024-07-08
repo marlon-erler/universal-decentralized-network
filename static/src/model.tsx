@@ -33,7 +33,7 @@ UDN.ondisconnect = () => {
 };
 
 function connect() {
-  UDN.connect(`ws://${window.location.host}`);
+  UDN.connect(`wss://${window.location.host}`);
 }
 connect();
 

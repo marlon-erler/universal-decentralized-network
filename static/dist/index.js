@@ -339,7 +339,7 @@
     setTimeout(connect, 2e3);
   };
   function connect() {
-    UDN.connect(`ws://${window.location.host}`);
+    UDN.connect(`wss://${window.location.host}`);
   }
   connect();
   var isDisconnected = new State(true);

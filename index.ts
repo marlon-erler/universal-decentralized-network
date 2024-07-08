@@ -7,7 +7,12 @@ import {
   processMessage,
   trackConnection,
 } from "./websocket-handler";
-import { getVersionNumber, writeStatNumber, writeStatString, writeSuccess } from "./utility";
+import {
+  getVersionNumber,
+  writeStatNumber,
+  writeStatString,
+  writeSuccess,
+} from "./utility";
 
 import Colors from "colors";
 import IP from "ip";
@@ -61,6 +66,23 @@ async function main() {
         forgetConnection(ws);
       },
     },
+
+    tls: await (async () => {
+      const keyFile = Bun.file("./key.pem");
+      const certFile = Bun.file("./cert.pem");
+
+      if (
+        (await keyFile.exists()) == false ||
+        (await certFile.exists()) == false
+      )
+        return undefined;
+
+      return {
+        key: keyFile,
+        cert: certFile,
+        passphrase: process.env.TLS_PASSPHRASE,
+      };
+    })(),
   });
 
   function createFileResponse(requestPath: string): Response {
@@ -76,7 +98,7 @@ async function main() {
     return [
       ["server url", server.url.toString()],
       ["server ip address", IP.address()],
-      ["server version", versionNumber]
+      ["server version", versionNumber],
     ];
   }
 
