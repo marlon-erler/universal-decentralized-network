@@ -127,7 +127,7 @@ async function main() {
   setInterval(() => {
     updateCLI();
     reconnectServers(config);
-  }, 5000);
+  }, 2000);
 
   // FINISH
   writeSuccess(`###\nstarted up ${new Date().toLocaleString()}`);
