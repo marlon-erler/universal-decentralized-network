@@ -65,6 +65,7 @@ Then, John will send his messages on both "s1-and-s2" and "car-warranty". As alw
 ---
 
 # The servers subscribe:
+
 **S1**   --(subscribe to "s1-and-s2"   )-> **S2**
 **S2**   --(subscribe to "s1-and-s2"   )-> **S1**
 
