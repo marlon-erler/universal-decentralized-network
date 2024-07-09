@@ -68,15 +68,20 @@ export class Mailbox implements Subscriber {
 
   set ws(ws: WS) {
     this._ws = ws;
+    this.update();
+  }
+
+  update() {
+    if (!this._ws) return;
     this.dateLastUsed = new Date();
 
     this.confirmConnection();
     this.sendUnreadMessages();
 
-    const channels = subscriptionMap.getChannelList(ws);
+    const channels = subscriptionMap.getChannelList(this._ws);
     channels?.forEach((channel) => this.subscribe(channel));
 
-    subscriptionMap.deleteSubscriber(ws);
+    subscriptionMap.deleteSubscriber(this._ws);
   }
 
   // subscribing
