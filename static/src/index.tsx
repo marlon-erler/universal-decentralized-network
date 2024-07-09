@@ -6,7 +6,6 @@ import { MessageScreen } from "./messageScreen";
 import { isDisconnected } from "./model";
 import { translations } from "./translations";
 
-// WS
 document.body.prepend(
   <menu>
     <a class="tab-link" href="#info-screen" active>
@@ -23,14 +22,19 @@ document.body.prepend(
     </a>
   </menu>
 );
+
 document
   .querySelector("main")!
   .append(InfoScreen(), MainScreen(), MessageScreen());
+
 document.body.append(
   <div class="modal" toggle:open={isDisconnected}>
     <div>
       <main>
-        <div class="flex-column align-center justify-center width-100 height-100" style="gap: 1rem">
+        <div
+          class="flex-column align-center justify-center width-100 height-100"
+          style="gap: 1rem"
+        >
           <span class="icon error" style="font-size: 3rem">
             signal_disconnected
           </span>
