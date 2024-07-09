@@ -143,6 +143,7 @@ async function main() {
       updateCLI();
       reconnectServers(config);
     }
+    
     removeExpiredMailboxes();
   }, 2000);
 

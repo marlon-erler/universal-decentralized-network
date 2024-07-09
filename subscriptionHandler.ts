@@ -23,7 +23,7 @@ export class Mailbox implements Subscriber {
   }
 
   get isExpired() {
-    if (this.ws) return false;
+    if (this.ws && this.ws.readyState == 1) return false;
 
     const today = new Date();
     return this.expiryDate < today;

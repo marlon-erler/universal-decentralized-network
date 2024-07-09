@@ -208,7 +208,6 @@ export function processMessage(
 
 // MAILBOX
 export function removeExpiredMailboxes() {
-  const today = new Date();
   mailboxes.forEach((mailbox) => {
     if (mailbox.isExpired) removeMailbox(mailbox);
   });
