@@ -15,17 +15,17 @@ import {
   unsubscribe,
 } from "./model";
 
-import { getText } from "./translations";
+import { translations } from "./translations";
 
 export function MainScreen() {
   // UI
   return (
     <article id="main-screen">
-      <header>{getText("settings")}</header>
+      <header>{translations.settings}</header>
       <div>
         <div class="tile width-input">
           <div>
-            <b>{getText("messageLastReceived")}</b>
+            <b>{translations.messageLastReceived}</b>
             <p class="secondary" subscribe:innerText={lastReceivedMessage}></p>
           </div>
         </div>
@@ -34,9 +34,9 @@ export function MainScreen() {
 
         <div class="tile width-input">
           <div>
-            <b>{getText("mailbox")}</b>
+            <b>{translations.mailbox}</b>
             <p class="secondary" toggle:hidden={isMailboxDisonnected}>
-              {getText("mailboxConnected")}
+              {translations.mailboxConnected}
             </p>
           </div>
         </div>
@@ -47,14 +47,14 @@ export function MainScreen() {
             on:click={deleteMailbox}
             toggle:disabled={isMailboxDisonnected}
           >
-            {getText("deleteMailbox")}
+            {translations.deleteMailbox}
           </button>
           <button
             class="primary width-50"
             on:click={requestMailbox}
             toggle:disabled={isDisconnected}
           >
-            {getText("requestMailbox")}
+            {translations.requestMailbox}
             <span class="icon">inbox</span>
           </button>
         </div>
@@ -63,9 +63,9 @@ export function MainScreen() {
 
         <label class="tile">
           <div>
-            <span>{getText("subscribeToChannel")}</span>
+            <span>{translations.subscribeToChannel}</span>
             <input
-              placeholder={getText("channel_placeholder")}
+              placeholder={translations.channel_placeholder}
               bind:value={subscriptionChannel}
               on:enter={subscribe}
             ></input>
@@ -74,10 +74,10 @@ export function MainScreen() {
 
         <div class="flex-row width-input justify-end">
           <button class="danger width-50" on:click={unsubscribe}>
-            {getText("unsubscribe")}
+            {translations.unsubscribe}
           </button>
           <button class="primary width-50" on:click={subscribe}>
-            {getText("subscribe")}
+            {translations.subscribe}
             <span class="icon">arrow_forward</span>
           </button>
         </div>
@@ -86,9 +86,9 @@ export function MainScreen() {
 
         <label class="tile">
           <div>
-            <span>{getText("channel")}</span>
+            <span>{translations.channel}</span>
             <input
-              placeholder={getText("channel_placeholder")}
+              placeholder={translations.channel_placeholder}
               bind:value={newMessageChannel}
               on:enter={sendMessage}
             ></input>
@@ -97,9 +97,9 @@ export function MainScreen() {
 
         <label class="tile">
           <div>
-            <span>{getText("message")}</span>
+            <span>{translations.message}</span>
             <input
-              placeholder={getText("message_placeholder")}
+              placeholder={translations.message_placeholder}
               bind:value={newMessageBody}
               on:enter={sendMessage}
             ></input>
@@ -112,7 +112,7 @@ export function MainScreen() {
             on:click={sendMessage}
             toggle:disabled={isMessageEmpty}
           >
-            {getText("send")}
+            {translations.send}
             <span class="icon">send</span>
           </button>
         </div>

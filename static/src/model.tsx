@@ -1,7 +1,7 @@
 import * as React from "bloatless-react";
 
 import UDNFrontend from "udn-frontend";
-import { getText } from "./translations";
+import { translations } from "./translations";
 
 export class Message implements React.Identifiable {
   id = React.UUID();
@@ -18,7 +18,7 @@ export const isMailboxDisonnected = new React.State(true);
 // messages
 export const messages = new React.ListState<Message>();
 export const lastReceivedMessage = new React.State(
-  getText("noMessagesReceived")
+  translations.noMessagesReceived
 );
 
 // stats

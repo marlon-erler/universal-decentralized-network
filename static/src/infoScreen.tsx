@@ -2,13 +2,13 @@ import * as React from "bloatless-react";
 
 import { statHTMLString, updateStats } from "./model";
 
-import { getText } from "./translations";
+import { translations } from "./translations";
 
 export function InfoScreen() {
   return (
     <article id="info-screen">
       <header>
-        {getText("serverInfo")}
+        {translations.serverInfo}
         <span>
           <button on:click={updateStats}>
             <span class="icon">refresh</span>

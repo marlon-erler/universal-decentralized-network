@@ -3,23 +3,23 @@ import * as React from "bloatless-react";
 import { InfoScreen } from "./infoScreen";
 import { MainScreen } from "./mainScreen";
 import { MessageScreen } from "./messageScreen";
-import { getText } from "./translations";
 import { isDisconnected } from "./model";
+import { translations } from "./translations";
 
 // WS
 document.body.prepend(
   <menu>
     <a class="tab-link" href="#info-screen" active>
       <span class="icon">info</span>
-      {getText("info")}
+      {translations.info}
     </a>
     <a class="tab-link" href="#main-screen">
       <span class="icon">settings</span>
-      {getText("settings")}
+      {translations.settings}
     </a>
     <a class="tab-link" href="#message-screen">
       <span class="icon">chat</span>
-      {getText("messages")}
+      {translations.messages}
     </a>
   </menu>
 );
@@ -34,8 +34,8 @@ document.body.append(
           <span class="icon error" style="font-size: 3rem">
             signal_disconnected
           </span>
-          <h1 class="error">{getText("disconnected")}</h1>
-          <p class="secondary">{getText("reconnecting")}</p>
+          <h1 class="error">{translations.disconnected}</h1>
+          <p class="secondary">{translations.reconnecting}</p>
         </div>
       </main>
     </div>

@@ -242,6 +242,8 @@
     };
     mailboxConnectionHandler = (mailboxId) => {
     };
+    mailboxDeleteHandler = (mailboxId) => {
+    };
     // INIT
     set onconnect(handler) {
       this.connectionHandler = handler;
@@ -252,11 +254,14 @@
     set onmessage(handler) {
       this.messageHandler = handler;
     }
-    set onmailbox(handler) {
+    set onmailboxcreate(handler) {
       this.mailboxHandler = handler;
     }
     set onmailboxconnect(handler) {
       this.mailboxConnectionHandler = handler;
+    }
+    set onmailboxdelete(handler) {
+      this.mailboxDeleteHandler = handler;
     }
     // UTILITY METHODS
     send(messageObject) {
@@ -268,21 +273,27 @@
     // PUBLIC METHODS
     // connection
     connect(address) {
-      this.disconnect();
-      this.ws = new WebSocket(address);
-      this.ws.addEventListener("open", this.connectionHandler);
-      this.ws.addEventListener("close", this.disconnectionHandler);
-      this.ws.addEventListener("message", (message) => {
-        const dataString = message.data.toString();
-        const data = JSON.parse(dataString);
-        if (data.assignedMailboxId) {
-          return this.mailboxHandler(data.assignedMailboxId);
-        } else if (data.connectedMailboxId) {
-          return this.mailboxConnectionHandler(data.assignedMailboxId);
-        } else {
-          this.messageHandler(data);
-        }
-      });
+      try {
+        this.disconnect();
+        this.ws = new WebSocket(address);
+        this.ws.addEventListener("open", this.connectionHandler);
+        this.ws.addEventListener("close", this.disconnectionHandler);
+        this.ws.addEventListener("message", (message) => {
+          const dataString = message.data.toString();
+          const data = JSON.parse(dataString);
+          if (data.assignedMailboxId) {
+            return this.mailboxHandler(data.assignedMailboxId);
+          } else if (data.connectedMailboxId) {
+            return this.mailboxConnectionHandler(data.connectedMailboxId);
+          } else if (data.deletedMailbox) {
+            return this.mailboxDeleteHandler(data.deletedMailbox);
+          } else {
+            this.messageHandler(data);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      }
     }
     disconnect() {
       this.ws?.close();
@@ -354,7 +365,7 @@
     subscribe: "Subscribe",
     unsubscribe: "Unubscribe"
   };
-  var translations = {
+  var allTranslations = {
     en: staticTextEnglish,
     es: {
       mailbox: "Buz\xF3n",
@@ -405,13 +416,8 @@
       unsubscribe: "Verlassen"
     }
   };
-  function getText(key) {
-    const language = navigator.language.substring(0, 2);
-    if (translations[language]) {
-      return translations[language][key];
-    }
-    return translations.en[key];
-  }
+  var language = navigator.language.substring(0, 2);
+  var translations = allTranslations[language];
 
   // src/model.tsx
   var Message = class {
@@ -426,7 +432,7 @@
   var isMailboxDisonnected = new State(true);
   var messages = new ListState();
   var lastReceivedMessage = new State(
-    getText("noMessagesReceived")
+    translations.noMessagesReceived
   );
   var statHTMLString = new State("");
   async function updateStats() {
@@ -496,7 +502,6 @@
     newMessageBody.value = "";
   }
   function requestMailbox() {
-    deleteMailbox();
     UDN.requestMailbox();
   }
   function deleteMailbox() {
@@ -506,19 +511,19 @@
 
   // src/infoScreen.tsx
   function InfoScreen() {
-    return /* @__PURE__ */ createElement("article", { id: "info-screen" }, /* @__PURE__ */ createElement("header", null, getText("serverInfo"), /* @__PURE__ */ createElement("span", null, /* @__PURE__ */ createElement("button", { "on:click": updateStats }, /* @__PURE__ */ createElement("span", { class: "icon" }, "refresh")))), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "flex-column gap", "subscribe:innerHTML": statHTMLString })));
+    return /* @__PURE__ */ createElement("article", { id: "info-screen" }, /* @__PURE__ */ createElement("header", null, translations.serverInfo, /* @__PURE__ */ createElement("span", null, /* @__PURE__ */ createElement("button", { "on:click": updateStats }, /* @__PURE__ */ createElement("span", { class: "icon" }, "refresh")))), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "flex-column gap", "subscribe:innerHTML": statHTMLString })));
   }
 
   // src/mainScreen.tsx
   function MainScreen() {
-    return /* @__PURE__ */ createElement("article", { id: "main-screen" }, /* @__PURE__ */ createElement("header", null, getText("settings")), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("messageLastReceived")), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": lastReceivedMessage }))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, getText("mailbox")), /* @__PURE__ */ createElement("p", { class: "secondary", "toggle:hidden": isMailboxDisonnected }, getText("mailboxConnected")))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement(
+    return /* @__PURE__ */ createElement("article", { id: "main-screen" }, /* @__PURE__ */ createElement("header", null, translations.settings), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, translations.messageLastReceived), /* @__PURE__ */ createElement("p", { class: "secondary", "subscribe:innerText": lastReceivedMessage }))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("div", { class: "tile width-input" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("b", null, translations.mailbox), /* @__PURE__ */ createElement("p", { class: "secondary", "toggle:hidden": isMailboxDisonnected }, translations.mailboxConnected))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement(
       "button",
       {
         class: "danger width-50",
         "on:click": deleteMailbox,
         "toggle:disabled": isMailboxDisonnected
       },
-      getText("deleteMailbox")
+      translations.deleteMailbox
     ), /* @__PURE__ */ createElement(
       "button",
       {
@@ -526,26 +531,26 @@
         "on:click": requestMailbox,
         "toggle:disabled": isDisconnected
       },
-      getText("requestMailbox"),
+      translations.requestMailbox,
       /* @__PURE__ */ createElement("span", { class: "icon" }, "inbox")
-    )), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("subscribeToChannel")), /* @__PURE__ */ createElement(
+    )), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, translations.subscribeToChannel), /* @__PURE__ */ createElement(
       "input",
       {
-        placeholder: getText("channel_placeholder"),
+        placeholder: translations.channel_placeholder,
         "bind:value": subscriptionChannel,
         "on:enter": subscribe
       }
-    ))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement("button", { class: "danger width-50", "on:click": unsubscribe }, getText("unsubscribe")), /* @__PURE__ */ createElement("button", { class: "primary width-50", "on:click": subscribe }, getText("subscribe"), /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward"))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("channel")), /* @__PURE__ */ createElement(
+    ))), /* @__PURE__ */ createElement("div", { class: "flex-row width-input justify-end" }, /* @__PURE__ */ createElement("button", { class: "danger width-50", "on:click": unsubscribe }, translations.unsubscribe), /* @__PURE__ */ createElement("button", { class: "primary width-50", "on:click": subscribe }, translations.subscribe, /* @__PURE__ */ createElement("span", { class: "icon" }, "arrow_forward"))), /* @__PURE__ */ createElement("hr", null), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, translations.channel), /* @__PURE__ */ createElement(
       "input",
       {
-        placeholder: getText("channel_placeholder"),
+        placeholder: translations.channel_placeholder,
         "bind:value": newMessageChannel,
         "on:enter": sendMessage
       }
-    ))), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, getText("message")), /* @__PURE__ */ createElement(
+    ))), /* @__PURE__ */ createElement("label", { class: "tile" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", null, translations.message), /* @__PURE__ */ createElement(
       "input",
       {
-        placeholder: getText("message_placeholder"),
+        placeholder: translations.message_placeholder,
         "bind:value": newMessageBody,
         "on:enter": sendMessage
       }
@@ -556,7 +561,7 @@
         "on:click": sendMessage,
         "toggle:disabled": isMessageEmpty
       },
-      getText("send"),
+      translations.send,
       /* @__PURE__ */ createElement("span", { class: "icon" }, "send")
     ))));
   }
@@ -566,7 +571,7 @@
     return /* @__PURE__ */ createElement("div", { class: "tile", style: "flex: 0" }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("span", { class: "secondary" }, message.channel), /* @__PURE__ */ createElement("b", null, message.body)));
   };
   function MessageScreen() {
-    return /* @__PURE__ */ createElement("article", { id: "message-screen" }, /* @__PURE__ */ createElement("header", null, getText("messagesReceived")), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement(
+    return /* @__PURE__ */ createElement("article", { id: "message-screen" }, /* @__PURE__ */ createElement("header", null, translations.messagesReceived), /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement(
       "div",
       {
         class: "flex-column gap",
@@ -576,7 +581,7 @@
       "input",
       {
         style: "max-width: unset",
-        placeholder: getText("message_placeholder_generic"),
+        placeholder: translations.message_placeholder_generic,
         "bind:value": newMessageBody,
         "on:enter": sendMessage
       }
@@ -593,10 +598,10 @@
 
   // src/index.tsx
   document.body.prepend(
-    /* @__PURE__ */ createElement("menu", null, /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#info-screen", active: true }, /* @__PURE__ */ createElement("span", { class: "icon" }, "info"), getText("info")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#main-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "settings"), getText("settings")), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#message-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "chat"), getText("messages")))
+    /* @__PURE__ */ createElement("menu", null, /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#info-screen", active: true }, /* @__PURE__ */ createElement("span", { class: "icon" }, "info"), translations.info), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#main-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "settings"), translations.settings), /* @__PURE__ */ createElement("a", { class: "tab-link", href: "#message-screen" }, /* @__PURE__ */ createElement("span", { class: "icon" }, "chat"), translations.messages))
   );
   document.querySelector("main").append(InfoScreen(), MainScreen(), MessageScreen());
   document.body.append(
-    /* @__PURE__ */ createElement("div", { class: "modal", "toggle:open": isDisconnected }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("main", null, /* @__PURE__ */ createElement("div", { class: "flex-column align-center justify-center width-100 height-100", style: "gap: 1rem" }, /* @__PURE__ */ createElement("span", { class: "icon error", style: "font-size: 3rem" }, "signal_disconnected"), /* @__PURE__ */ createElement("h1", { class: "error" }, getText("disconnected")), /* @__PURE__ */ createElement("p", { class: "secondary" }, getText("reconnecting"))))))
+    /* @__PURE__ */ createElement("div", { class: "modal", "toggle:open": isDisconnected }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("main", null, /* @__PURE__ */ createElement("div", { class: "flex-column align-center justify-center width-100 height-100", style: "gap: 1rem" }, /* @__PURE__ */ createElement("span", { class: "icon error", style: "font-size: 3rem" }, "signal_disconnected"), /* @__PURE__ */ createElement("h1", { class: "error" }, translations.disconnected), /* @__PURE__ */ createElement("p", { class: "secondary" }, translations.reconnecting)))))
   );
 })();

@@ -1,5 +1,5 @@
 // STATIC
-export const staticTextEnglish = {
+const staticTextEnglish = {
   mailbox: "Mailbox",
   requestMailbox: "Request",
   deleteMailbox: "Delete",
@@ -24,7 +24,7 @@ export const staticTextEnglish = {
   unsubscribe: "Unubscribe",
 };
 
-export const translations: { [key: string]: typeof staticTextEnglish } = {
+const allTranslations: { [key: string]: typeof staticTextEnglish } = {
   en: staticTextEnglish,
   es: {
     mailbox: "Buzón",
@@ -76,10 +76,5 @@ export const translations: { [key: string]: typeof staticTextEnglish } = {
   },
 };
 
-export function getText(key: keyof typeof staticTextEnglish): string {
-  const language = navigator.language.substring(0, 2);
-  if (translations[language]) {
-    return translations[language][key];
-  }
-  return translations.en[key];
-}
+const language = navigator.language.substring(0, 2);
+export const translations = allTranslations[language];

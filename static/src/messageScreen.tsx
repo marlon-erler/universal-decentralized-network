@@ -8,7 +8,7 @@ import {
   sendMessage,
 } from "./model";
 
-import { getText } from "./translations";
+import { translations } from "./translations";
 
 const convertMessageToElement: React.ListItemConverter<Message> = (message) => {
   return (
@@ -24,7 +24,7 @@ const convertMessageToElement: React.ListItemConverter<Message> = (message) => {
 export function MessageScreen() {
   return (
     <article id="message-screen">
-      <header>{getText("messagesReceived")}</header>
+      <header>{translations.messagesReceived}</header>
       <div>
         <div
           class="flex-column gap"
@@ -34,7 +34,7 @@ export function MessageScreen() {
       <footer>
         <input
           style="max-width: unset"
-          placeholder={getText("message_placeholder_generic")}
+          placeholder={translations.message_placeholder_generic}
           bind:value={newMessageBody}
           on:enter={sendMessage}
         ></input>
