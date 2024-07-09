@@ -3,9 +3,7 @@ import * as React from "bloatless-react";
 import UDNFrontend from "udn-frontend";
 import { translations } from "./translations";
 
-export class Message implements React.Identifiable {
-  id = React.UUID();
-
+export class Message {
   constructor(public channel: string, public body: string) {}
 }
 

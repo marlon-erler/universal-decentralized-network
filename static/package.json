@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "bloatless-react": "1.2.5-beta1",
+    "bloatless-react": "^1.2.6",
     "esbuild": "latest",
     "udn-frontend": "^1.0.6"
   },
