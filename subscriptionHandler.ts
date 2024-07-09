@@ -101,7 +101,7 @@ export class Mailbox implements Subscriber {
 
   sendUnreadMessages(): void {
     this.messages.forEach((message) => {
-      if (!this._ws) return;
+      if (this._ws?.readyState != 1) return;
 
       this._ws.send(message);
       this.messages.delete(message);
