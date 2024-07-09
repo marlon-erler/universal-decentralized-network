@@ -12,7 +12,9 @@ export class Message implements React.Identifiable {
 // STATE
 // connection
 export const isDisconnected = new React.State(true);
-export const storedMailboxId = React.restoreState("mailbox-id", "");
+
+// mailbox
+export const mailboxId = React.restoreState("mailbox-id", "");
 export const isMailboxDisonnected = new React.State(true);
 
 // messages
@@ -42,7 +44,7 @@ export async function updateStats() {
   statHTMLString.value = html;
 }
 
-// elements
+// channels
 export const subscriptionChannel = new React.State("");
 
 export const newMessageChannel = new React.State("");
@@ -60,8 +62,8 @@ UDN.onconnect = () => {
   isDisconnected.value = false;
   updateStats();
 
-  if (storedMailboxId.value != "") {
-    UDN.connectMailbox(storedMailboxId.value);
+  if (mailboxId.value != "") {
+    UDN.connectMailbox(mailboxId.value);
   }
 };
 
@@ -75,16 +77,19 @@ UDN.onmessage = (data) => {
   }
 };
 
-UDN.onmailbox = (id) => {
+UDN.onmailboxcreate = (id) => {
   console.log(id);
-  storedMailboxId.value = id;
+  mailboxId.value = id;
   UDN.connectMailbox(id);
 };
 
-UDN.onmailboxconnect = (id) => {
-  console.log(id);
+UDN.onmailboxconnect = () => {
   isMailboxDisonnected.value = false;
 };
+
+UDN.onmailboxdelete = () => {
+  isMailboxDisonnected.value = true;
+}
 
 UDN.ondisconnect = () => {
   isDisconnected.value = true;
@@ -120,5 +125,5 @@ export function requestMailbox() {
 
 export function deleteMailbox() {
   console.log("test");
-  UDN.deleteMailbox(storedMailboxId.value);
+  UDN.deleteMailbox(mailboxId.value);
 }

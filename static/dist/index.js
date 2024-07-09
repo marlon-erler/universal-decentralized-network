@@ -238,11 +238,11 @@
     };
     messageHandler = (data) => {
     };
-    mailboxHandler = (mailboxId) => {
+    mailboxHandler = (mailboxId2) => {
     };
-    mailboxConnectionHandler = (mailboxId) => {
+    mailboxConnectionHandler = (mailboxId2) => {
     };
-    mailboxDeleteHandler = (mailboxId) => {
+    mailboxDeleteHandler = (mailboxId2) => {
     };
     // INIT
     set onconnect(handler) {
@@ -326,15 +326,15 @@
       };
       return this.send(messageObject);
     }
-    connectMailbox(mailboxId) {
+    connectMailbox(mailboxId2) {
       const messageObject = {
-        requestedMailbox: mailboxId
+        requestedMailbox: mailboxId2
       };
       return this.send(messageObject);
     }
-    deleteMailbox(mailboxId) {
+    deleteMailbox(mailboxId2) {
       const messageObject = {
-        deletingMailbox: mailboxId
+        deletingMailbox: mailboxId2
       };
       return this.send(messageObject);
     }
@@ -345,7 +345,7 @@
     mailbox: "Mailbox",
     requestMailbox: "Request",
     deleteMailbox: "Delete",
-    mailboxConnected: "Mailbox connected",
+    mailboxConnected: "Mailbox active",
     channel: "Channel",
     channel_placeholder: "my-channel",
     disconnected: "Server disconnected",
@@ -371,7 +371,7 @@
       mailbox: "Buz\xF3n",
       requestMailbox: "Solicitar",
       deleteMailbox: "Eliminar",
-      mailboxConnected: "Buz\xF3n conectado",
+      mailboxConnected: "Buz\xF3n activado",
       channel: "Canal",
       channel_placeholder: "mi-canal",
       disconnected: "Sin coneci\xF3n",
@@ -395,7 +395,7 @@
       mailbox: "Briefkasten",
       requestMailbox: "Beantragen",
       deleteMailbox: "L\xF6schen",
-      mailboxConnected: "Briefkasten verbunden",
+      mailboxConnected: "Briefkasten aktiv",
       channel: "Kanal",
       channel_placeholder: "mein-kanal",
       disconnected: "Verbindung getrennt",
@@ -428,7 +428,7 @@
     id = UUID();
   };
   var isDisconnected = new State(true);
-  var storedMailboxId = restoreState("mailbox-id", "");
+  var mailboxId = restoreState("mailbox-id", "");
   var isMailboxDisonnected = new State(true);
   var messages = new ListState();
   var lastReceivedMessage = new State(
@@ -458,8 +458,8 @@
   UDN.onconnect = () => {
     isDisconnected.value = false;
     updateStats();
-    if (storedMailboxId.value != "") {
-      UDN.connectMailbox(storedMailboxId.value);
+    if (mailboxId.value != "") {
+      UDN.connectMailbox(mailboxId.value);
     }
   };
   UDN.onmessage = (data) => {
@@ -470,14 +470,16 @@
       if (messageBody) messages.add(messageObject);
     }
   };
-  UDN.onmailbox = (id) => {
+  UDN.onmailboxcreate = (id) => {
     console.log(id);
-    storedMailboxId.value = id;
+    mailboxId.value = id;
     UDN.connectMailbox(id);
   };
-  UDN.onmailboxconnect = (id) => {
-    console.log(id);
+  UDN.onmailboxconnect = () => {
     isMailboxDisonnected.value = false;
+  };
+  UDN.onmailboxdelete = () => {
+    isMailboxDisonnected.value = true;
   };
   UDN.ondisconnect = () => {
     isDisconnected.value = true;
@@ -506,7 +508,7 @@
   }
   function deleteMailbox() {
     console.log("test");
-    UDN.deleteMailbox(storedMailboxId.value);
+    UDN.deleteMailbox(mailboxId.value);
   }
 
   // src/infoScreen.tsx
@@ -602,6 +604,15 @@
   );
   document.querySelector("main").append(InfoScreen(), MainScreen(), MessageScreen());
   document.body.append(
-    /* @__PURE__ */ createElement("div", { class: "modal", "toggle:open": isDisconnected }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("main", null, /* @__PURE__ */ createElement("div", { class: "flex-column align-center justify-center width-100 height-100", style: "gap: 1rem" }, /* @__PURE__ */ createElement("span", { class: "icon error", style: "font-size: 3rem" }, "signal_disconnected"), /* @__PURE__ */ createElement("h1", { class: "error" }, translations.disconnected), /* @__PURE__ */ createElement("p", { class: "secondary" }, translations.reconnecting)))))
+    /* @__PURE__ */ createElement("div", { class: "modal", "toggle:open": isDisconnected }, /* @__PURE__ */ createElement("div", null, /* @__PURE__ */ createElement("main", null, /* @__PURE__ */ createElement(
+      "div",
+      {
+        class: "flex-column align-center justify-center width-100 height-100",
+        style: "gap: 1rem"
+      },
+      /* @__PURE__ */ createElement("span", { class: "icon error", style: "font-size: 3rem" }, "signal_disconnected"),
+      /* @__PURE__ */ createElement("h1", { class: "error" }, translations.disconnected),
+      /* @__PURE__ */ createElement("p", { class: "secondary" }, translations.reconnecting)
+    ))))
   );
 })();
