@@ -189,7 +189,11 @@ export function processMessage(
   }
   doIfIsString(messageObject.requestedMailbox, (requestedMailbox) => {
     const mailbox = mailboxes.get(requestedMailbox);
-    if (!mailbox) return;
+    if (!mailbox)
+      return sendWebSocketMessage(
+        { deletedMailbox: requestedMailbox},
+        ws
+      );
     mailbox.ws = ws;
   });
   doIfIsString(messageObject.deletingMailbox, (deletingMailbox) => {
